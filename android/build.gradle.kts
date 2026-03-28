@@ -11,7 +11,8 @@ subprojects {
     project.layout.buildDirectory.set(rootProject.layout.buildDirectory.dir(project.name))
 
     if (project.name != "app") {
-       project.evaluationDependsOn(":app")   }
+        project.evaluationDependsOn(":app")   
+    }
 
     project.plugins.withId("com.android.library") {
        configureNamespace(project)
