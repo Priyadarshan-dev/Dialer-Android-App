@@ -60,7 +60,8 @@ class CallNotesOverlay : Service() {
                         WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                         WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
                 
-                width = 700 // pixels as requested
+                // Use 90% of screen width for a more spacious card
+                width = (resources.displayMetrics.widthPixels * 0.9).toInt()
                 height = WindowManager.LayoutParams.WRAP_CONTENT
                 gravity = Gravity.CENTER
                 x = 0
@@ -71,13 +72,13 @@ class CallNotesOverlay : Service() {
             val container = FrameLayout(this)
             val cardBg = GradientDrawable().apply {
                 setColor(Color.parseColor("#121212")) // Deep Obsidian
-                cornerRadius = 64f // Smoother corners for premium feel
-                setStroke(3, Color.parseColor("#6366F1")) // Indigo Border
-                setAlpha(248)
+                cornerRadius = 80f // Even smoother for the larger card
+                setStroke(4, Color.parseColor("#6366F1")) // Slightly thicker Indigo Border
+                setAlpha(250)
             }
             container.background = cardBg
-            container.elevation = 32f
-            container.setPadding(40, 40, 40, 40)
+            container.elevation = 40f
+            container.setPadding(60, 60, 60, 60) // Extra padding for a spacious feel
 
             val mainLayout = android.widget.LinearLayout(this).apply {
                 orientation = android.widget.LinearLayout.VERTICAL
