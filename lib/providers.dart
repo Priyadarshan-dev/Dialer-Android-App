@@ -12,6 +12,7 @@ import 'package:dialer_app_poc/features/contacts/data/datasources/contact_local_
 import 'package:dialer_app_poc/features/contacts/data/repositories/contact_repository_impl.dart';
 import 'package:dialer_app_poc/features/contacts/domain/repositories/contact_repository.dart';
 import 'package:dialer_app_poc/features/contacts/domain/usecases/get_contacts_usecase.dart';
+import 'package:dialer_app_poc/features/contacts/domain/usecases/add_contact_usecase.dart';
 import 'package:dialer_app_poc/features/contacts/presentation/providers/contacts_provider.dart';
 import 'package:dialer_app_poc/features/contacts/presentation/states/contacts_state.dart';
 import 'package:dialer_app_poc/core/services/call_directory_service.dart';
@@ -32,9 +33,15 @@ final getContactsUseCaseProvider = Provider<GetContactsUseCase>((ref) {
   return GetContactsUseCase(repository);
 });
 
+final addContactUseCaseProvider = Provider<AddContactUseCase>((ref) {
+  final repository = ref.watch(contactRepositoryProvider);
+  return AddContactUseCase(repository);
+});
+
 final contactsProvider = StateNotifierProvider<ContactsNotifier, ContactsState>((ref) {
-  final useCase = ref.watch(getContactsUseCaseProvider);
-  return ContactsNotifier(useCase);
+  final getUseCase = ref.watch(getContactsUseCaseProvider);
+  final addUseCase = ref.watch(addContactUseCaseProvider);
+  return ContactsNotifier(getUseCase, addUseCase);
 });
 
 // --- Call History Providers ---

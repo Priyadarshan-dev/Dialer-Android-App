@@ -23,4 +23,18 @@ Future<Either<Failure, List<ContactEntity>>> getContacts() async {
     return Left(DeviceFailure(e.toString()));
   }
 }
+
+  @override
+  Future<Either<Failure, void>> addContact(String firstName, String lastName, String phone) async {
+    try {
+      await localDataSource.addContact(firstName, lastName, phone);
+      return const Right(null);
+    } catch (e) {
+      print('[DEBUG] ContactRepository: ADD ERROR → $e');
+      if (e.toString().contains('Permission')) {
+        return Left(PermissionFailure('Contacts permission denied'));
+      }
+      return Left(DeviceFailure(e.toString()));
+    }
+  }
 }

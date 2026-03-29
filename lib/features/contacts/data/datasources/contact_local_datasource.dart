@@ -4,6 +4,7 @@ import 'package:permission_handler/permission_handler.dart' as ph;
 
 abstract class ContactLocalDataSource {
   Future<List<ContactModel>> getContacts();
+  Future<void> addContact(String firstName, String lastName, String phone);
 }
 
 class ContactLocalDataSourceImpl implements ContactLocalDataSource {
@@ -38,6 +39,23 @@ class ContactLocalDataSourceImpl implements ContactLocalDataSource {
       print('[DEBUG] Mapping contact: ${c.id}');
       return ContactModel.fromFlutterContact(c);
     }).toList();
+  }
+
+  @override
+  Future<void> addContact(String firstName, String lastName, String phone) async {
+    print('[DEBUG] ContactLocalDataSource: Adding new contact...');
+    final status = await ph.Permission.contacts.status;
+    if (!status.isGranted) {
+      throw Exception('Contacts permission required to save a contact.');
+    }
+
+    final newContact = Contact()
+      ..name.first = firstName
+      ..name.last = lastName
+      ..phones = [Phone(phone)];
+    
+    await newContact.insert();
+    print('[DEBUG] ContactLocalDataSource: Contact successfully added natively.');
   }
 }
 

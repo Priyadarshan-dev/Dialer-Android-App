@@ -1,12 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dialer_app_poc/core/usecases/usecase.dart';
 import 'package:dialer_app_poc/features/contacts/domain/usecases/get_contacts_usecase.dart';
+import 'package:dialer_app_poc/features/contacts/domain/usecases/add_contact_usecase.dart';
 import 'package:dialer_app_poc/features/contacts/presentation/states/contacts_state.dart';
 
 class ContactsNotifier extends StateNotifier<ContactsState> {
   final GetContactsUseCase _getContactsUseCase;
+  final AddContactUseCase _addContactUseCase;
 
-  ContactsNotifier(this._getContactsUseCase) : super(ContactsState());
+  ContactsNotifier(this._getContactsUseCase, this._addContactUseCase) : super(ContactsState());
 
   Future<void> loadContacts() async {
     print('[DEBUG] ContactsNotifier: Starting loadContacts...');
@@ -41,5 +43,21 @@ class ContactsNotifier extends StateNotifier<ContactsState> {
       print('[DEBUG] ContactsNotifier: Filtered to ${filtered.length} matches');
       state = state.copyWith(filtered: filtered, searchQuery: query);
     }
+  }
+
+  Future<void> addContact(String firstName, String lastName, String phone) async {
+    print('[DEBUG] ContactsNotifier: Adding contact...');
+    final result = await _addContactUseCase(AddContactParams(firstName: firstName, lastName: lastName, phone: phone));
+    
+    result.fold(
+      (failure) {
+        print('[DEBUG] ContactsNotifier: Add contact failed: ${failure}');
+        state = state.copyWith(error: failure.message);
+      },
+      (_) {
+        print('[DEBUG] ContactsNotifier: Contact added successfully, reloading list...');
+        loadContacts();
+      },
+    );
   }
 }

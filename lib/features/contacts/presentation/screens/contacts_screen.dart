@@ -8,6 +8,7 @@ import 'package:dialer_app_poc/core/constants/app_constants.dart';
 import 'package:dialer_app_poc/features/call_history/domain/entities/call_history_entity.dart';
 import 'package:dialer_app_poc/core/services/notification_service.dart';
 import 'package:dialer_app_poc/features/contacts/presentation/screens/dialpad_screen.dart';
+import 'package:dialer_app_poc/features/contacts/presentation/screens/widgets/add_contact_dialog.dart';
 
 class ContactsScreen extends ConsumerWidget {
   const ContactsScreen({super.key});
@@ -22,6 +23,17 @@ class ContactsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Contacts'),
         surfaceTintColor: Colors.transparent,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add_rounded, color: Colors.white),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => const AddContactDialog(),
+              );
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
