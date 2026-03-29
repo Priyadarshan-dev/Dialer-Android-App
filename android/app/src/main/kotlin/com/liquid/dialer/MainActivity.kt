@@ -15,10 +15,23 @@ class MainActivity : FlutterActivity() {
             .setMethodCallHandler { call, result ->
                 when (call.method) {
                     CallScreeningConstants.SYNC_CALL_DIRECTORY_METHOD -> {
-                        // The Android Call Screening Service queries Flutter live,
-                        // so sync is mostly a placeholder or to clear local cache if any.
                         Log.d(TAG, "Syncing call directory (Android)...")
                         result.success(true)
+                    }
+                    "isCallerIdRoleHeld" -> {
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                            val roleManager = getSystemService(android.content.Context.ROLE_SERVICE) as android.app.role.RoleManager
+                            result.success(roleManager.isRoleHeld(android.app.role.RoleManager.ROLE_CALL_SCREENING))
+                        } else {
+                            result.success(true) // Older versions don't have this role, handled via other means if needed
+                        }
+                    }
+                    "isOverlayPermissionGranted" -> {
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                            result.success(android.provider.Settings.canDrawOverlays(this))
+                        } else {
+                            result.success(true)
+                        }
                     }
                     "requestCallerIdRole" -> {
                         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {

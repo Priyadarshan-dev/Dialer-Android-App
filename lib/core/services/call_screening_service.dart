@@ -28,4 +28,40 @@ class CallScreeningService {
       print('[DEBUG] CallScreeningService: Sync notification failed: ${e.message}');
     }
   }
+
+  /// Check if the app is the default Caller ID & Spam app
+  static Future<bool> isCallerIdRoleHeld() async {
+    try {
+      return await _channel.invokeMethod<bool>('isCallerIdRoleHeld') ?? false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Check if the app has overlay permission
+  static Future<bool> isOverlayPermissionGranted() async {
+    try {
+      return await _channel.invokeMethod<bool>('isOverlayPermissionGranted') ?? false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Request to set as default Caller ID app
+  static Future<void> requestCallerIdRole() async {
+    try {
+      await _channel.invokeMethod('requestCallerIdRole');
+    } catch (e) {
+      print('[DEBUG] Error requesting Caller ID role: $e');
+    }
+  }
+
+  /// Request Overlay permission
+  static Future<void> requestOverlayPermission() async {
+    try {
+      await _channel.invokeMethod('requestOverlayPermission');
+    } catch (e) {
+      print('[DEBUG] Error requesting Overlay permission: $e');
+    }
+  }
 }
