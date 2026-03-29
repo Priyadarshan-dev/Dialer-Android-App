@@ -81,7 +81,7 @@ void _handleNotificationPayload(String? payload) {
      
      // Wait a tiny bit for data to load if app just started
      Future.delayed(const Duration(milliseconds: 1000), () {
-        final calls = ref.read(callHistoryProvider).allCalls;
+        final calls = ref.read(callHistoryProvider).calls;
         final targetCall = calls.where((c) => c.id == callId).firstOrNull;
         
         if (targetCall != null) {
