@@ -62,8 +62,11 @@ Future<void> _initApp() async {
   print('[DEBUG] App: Contacts permission status: $status');
 
   if (mounted) {
-    ref.read(contactsProvider.notifier).loadContacts();
-    ref.read(callHistoryProvider.notifier).loadCalls();
+    await ref.read(contactsProvider.notifier).loadContacts();
+    await ref.read(callHistoryProvider.notifier).loadCalls();
+    
+    // ✅ Check for pending calls even on fresh app start (important for notification clicks)
+    _checkPendingCalls();
   }
 }
 
