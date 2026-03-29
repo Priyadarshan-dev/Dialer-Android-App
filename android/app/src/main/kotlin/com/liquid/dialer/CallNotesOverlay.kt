@@ -34,10 +34,10 @@ class CallNotesOverlay : Service() {
         
         Log.d(TAG, "onStartCommand: received phoneNumber: $phoneNumber, name: $name and notes: $notes")
         
-        if (notes.isNotEmpty()) {
+        if (notes.isNotEmpty() || name.isNotEmpty()) {
             showOverlay(phoneNumber, notes, name)
         } else {
-            Log.d(TAG, "No notes to show, stopping service")
+            Log.d(TAG, "No notes or name to show, stopping service")
             stopSelf()
         }
         
@@ -112,27 +112,40 @@ class CallNotesOverlay : Service() {
             contentLayout.addView(phoneText)
 
             // Saved Notes static label
-            val labelText = TextView(this).apply {
-                text = "SAVED NOTES:"
-                setTextColor(Color.parseColor("#BBBBBB"))
-                textSize = 12f
-                setTypeface(null, android.graphics.Typeface.BOLD)
-                setPadding(0, 0, 0, 8)
-                gravity = Gravity.CENTER_HORIZONTAL
-            }
-            contentLayout.addView(labelText)
+            if (notes.isNotEmpty()) {
+                val labelText = TextView(this).apply {
+                    text = "SAVED NOTES:"
+                    setTextColor(Color.parseColor("#BBBBBB"))
+                    textSize = 12f
+                    setTypeface(null, android.graphics.Typeface.BOLD)
+                    setPadding(0, 0, 0, 8)
+                    gravity = Gravity.CENTER_HORIZONTAL
+                }
+                contentLayout.addView(labelText)
 
-            // Notes
-            val notesText = TextView(this).apply {
-                text = notes
-                setTextColor(Color.WHITE)
-                textSize = 15f
-                maxLines = 6
-                ellipsize = android.text.TextUtils.TruncateAt.END
-                gravity = Gravity.CENTER_HORIZONTAL
-                textAlignment = View.TEXT_ALIGNMENT_CENTER
+                // Notes
+                val notesText = TextView(this).apply {
+                    text = notes
+                    setTextColor(Color.WHITE)
+                    textSize = 15f
+                    maxLines = 6
+                    ellipsize = android.text.TextUtils.TruncateAt.END
+                    gravity = Gravity.CENTER_HORIZONTAL
+                    textAlignment = View.TEXT_ALIGNMENT_CENTER
+                }
+                contentLayout.addView(notesText)
+            } else if (contactName.isNotEmpty()) {
+                // If there's a name but no note, show a "Lead Identified" badge
+                val leadBadge = TextView(this).apply {
+                    text = "CRM LEAD IDENTIFIED"
+                    setTextColor(Color.parseColor("#6366F1"))
+                    textSize = 12f
+                    setTypeface(null, android.graphics.Typeface.BOLD)
+                    setPadding(0, 8, 0, 0)
+                    gravity = Gravity.CENTER_HORIZONTAL
+                }
+                contentLayout.addView(leadBadge)
             }
-            contentLayout.addView(notesText)
 
             // Close Button (X)
             val closeButton = TextView(this).apply {
