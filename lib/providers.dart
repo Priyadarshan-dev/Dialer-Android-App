@@ -19,8 +19,13 @@ import 'package:dialer_app_poc/core/services/call_directory_service.dart';
 
 // --- Contacts Providers ---
 
+final contactBoxProvider = Provider<Box<ContactModel>>((ref) {
+  return Hive.box<ContactModel>(AppConstants.contactsBox);
+});
+
 final contactLocalDataSourceProvider = Provider<ContactLocalDataSource>((ref) {
-  return ContactLocalDataSourceImpl();
+  final box = ref.watch(contactBoxProvider);
+  return ContactLocalDataSourceImpl(box);
 });
 
 final contactRepositoryProvider = Provider<ContactRepository>((ref) {

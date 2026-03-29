@@ -6,6 +6,7 @@ import 'package:dialer_app_poc/core/constants/app_constants.dart';
 import 'package:dialer_app_poc/features/call_history/data/models/call_history_model.dart';
 import 'package:dialer_app_poc/core/services/notification_service.dart';
 import 'package:dialer_app_poc/core/services/call_screening_service.dart';
+import 'package:dialer_app_poc/features/contacts/data/models/contact_model.dart';
 import 'dart:io';
 
 void main() async {
@@ -16,9 +17,11 @@ void main() async {
   
   // Register Adapters
   Hive.registerAdapter(CallHistoryModelAdapter());
+  Hive.registerAdapter(ContactModelAdapter());
   
   // Open Boxes
   await Hive.openBox<CallHistoryModel>(AppConstants.callHistoryBox);
+  await Hive.openBox<ContactModel>(AppConstants.contactsBox);
 
   // Initialize Notifications
   await NotificationService().init();

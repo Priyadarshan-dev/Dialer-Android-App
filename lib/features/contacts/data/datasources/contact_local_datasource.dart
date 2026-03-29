@@ -1,6 +1,7 @@
-import 'package:flutter_contacts/flutter_contacts.dart';
+import 'package:hive/hive.dart';
 import 'package:dialer_app_poc/features/contacts/data/models/contact_model.dart';
-import 'package:permission_handler/permission_handler.dart' as ph;
+import 'package:dialer_app_poc/core/services/shared_preferences_service.dart';
+import 'package:uuid/uuid.dart';
 
 abstract class ContactLocalDataSource {
   Future<List<ContactModel>> getContacts();
@@ -8,54 +9,60 @@ abstract class ContactLocalDataSource {
 }
 
 class ContactLocalDataSourceImpl implements ContactLocalDataSource {
+  final Box<ContactModel> box;
+
+  ContactLocalDataSourceImpl(this.box);
+
   @override
   Future<List<ContactModel>> getContacts() async {
-    print('[DEBUG] ContactLocalDataSource: Checking contacts permission...');
-
-    // ✅ Use permission_handler to check status (already requested in app.dart)
-    final status = await ph.Permission.contacts.status;
-    print('[DEBUG] ContactLocalDataSource: Permission status: $status');
-
-    if (status.isPermanentlyDenied) {
-      print('[DEBUG] ContactLocalDataSource: Permission permanently denied.');
-      throw Exception('Permission permanently denied. Please enable in settings.');
+    print('[DEBUG] ContactLocalDataSource: Fetching CRM contacts from Hive...');
+    
+    // Inject Mock Data if empty (First Launch experience)
+    if (box.isEmpty) {
+      print('[DEBUG] ContactLocalDataSource: Box is empty, injecting mock leads...');
+      await _injectMockLeads();
     }
+    
+    return box.values.toList();
+  }
 
-    if (!status.isGranted) {
-      print('[DEBUG] ContactLocalDataSource: Permission not granted: $status');
-      throw Exception('Contacts permission denied. Please enable in settings.');
+  Future<void> _injectMockLeads() async {
+    final mockLeads = [
+      {'first': 'John', 'last': 'Salesman', 'phone': '5551234567'},
+      {'first': 'Jane', 'last': 'Lead', 'phone': '5559876543'},
+    ];
+
+    for (var lead in mockLeads) {
+      await addContact(lead['first']!, lead['last']!, lead['phone']!);
     }
-
-    print('[DEBUG] ContactLocalDataSource: Permission granted. Fetching contacts...');
-
-    // ✅ Directly fetch contacts with phone numbers — 2.0.1 defaults to only IDs/names
-    final contacts = await FlutterContacts.getAll(
-      properties: {ContactProperty.phone},
-    );
-
-    print('[DEBUG] ContactLocalDataSource: Successfully fetched ${contacts.length} contacts');
-
-    return contacts.map((c) {
-      print('[DEBUG] Mapping contact: ${c.id}');
-      return ContactModel.fromFlutterContact(c);
-    }).toList();
   }
 
   @override
   Future<void> addContact(String firstName, String lastName, String phone) async {
-    print('[DEBUG] ContactLocalDataSource: Adding new contact...');
-    final status = await ph.Permission.contacts.status;
-    if (!status.isGranted) {
-      throw Exception('Contacts permission required to save a contact.');
-    }
-
-    final newContact = Contact(
-      name: Name(first: firstName, last: lastName),
-      phones: [Phone(number: phone)],
+    print('[DEBUG] ContactLocalDataSource: Adding new CRM contact to Hive...');
+    
+    final id = const Uuid().v4();
+    final displayName = '$firstName $lastName'.trim();
+    
+    final newContact = ContactModel(
+      id: id,
+      displayName: displayName,
+      phoneNumbers: [phone],
     );
     
-    await FlutterContacts.create(newContact);
-    print('[DEBUG] ContactLocalDataSource: Contact successfully added natively.');
+    // 1. Save to CRM Internal DB (Hive)
+    await box.put(id, newContact);
+    
+    // 2. Sync to SharedPreferences so Native Overlay can see the NAME
+    // We reuse SharedPreferencesService which is already used for syncing notes.
+    // This ensures that when this number calls, the name "$firstName $lastName" appears.
+    await SharedPreferencesService.saveNoteToSharedPrefs(
+      phone, 
+      '', // No initial notes, just syncing the name
+      contactName: displayName
+    );
+    
+    print('[DEBUG] ContactLocalDataSource: CRM Contact successfully added and synced for Caller ID.');
   }
 }
 

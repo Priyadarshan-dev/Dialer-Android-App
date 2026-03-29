@@ -40,7 +40,7 @@ class LiquidDialerCallScreeningService : CallScreeningService() {
             .setSkipCallLog(false)
             .setSkipNotification(false)
 
-        if (!notes.isNullOrEmpty()) {
+        if (!notes.isNullOrEmpty() || !name.isNullOrEmpty()) {
             Log.d(TAG, "Found notes for display: $notes")
             Log.d(TAG, "Starting overlay service with notes")
             val overlayIntent = Intent(this, CallNotesOverlay::class.java).apply {

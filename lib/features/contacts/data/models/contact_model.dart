@@ -1,10 +1,20 @@
-import 'package:flutter_contacts/flutter_contacts.dart';
+import 'package:hive/hive.dart';
 import '../../domain/entities/contact_entity.dart';
 
-class ContactModel {
+part 'contact_model.g.dart';
+
+@HiveType(typeId: 1)
+class ContactModel extends HiveObject {
+  @HiveField(0)
   final String id;
+  
+  @HiveField(1)
   final String displayName;
+  
+  @HiveField(2)
   final List<String> phoneNumbers;
+  
+  @HiveField(3)
   final String? photoUrl;
 
   ContactModel({
@@ -13,15 +23,6 @@ class ContactModel {
     required this.phoneNumbers,
     this.photoUrl,
   });
-
-  factory ContactModel.fromFlutterContact(Contact contact) {
-    return ContactModel(
-      id: contact.id ?? '',
-      displayName: contact.displayName ?? 'Unknown',
-      phoneNumbers: contact.phones.map((p) => p.number).toList(),
-      photoUrl: contact.photo != null ? 'has_photo' : null, // Not storing actual bytes here for simplicity
-    );
-  }
 
   ContactEntity toEntity() {
     return ContactEntity(
