@@ -55,7 +55,7 @@ class _DialpadScreenState extends ConsumerState<DialpadScreen> {
     
     // 3. iOS Workaround: Show notification reminder
     if (res == true || Platform.isIOS) {
-      await NotificationService().showCallReminder('Manual Dial ($_phoneNumber)');
+      await NotificationService().showCallReminder('Manual Dial ($_phoneNumber)', callId: callHistory.id);
     }
 
     if (res == false && mounted) {
