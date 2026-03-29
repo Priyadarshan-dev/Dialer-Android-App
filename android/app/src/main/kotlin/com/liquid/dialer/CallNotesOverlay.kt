@@ -72,42 +72,52 @@ class CallNotesOverlay : Service() {
             val container = FrameLayout(this)
             val cardBg = GradientDrawable().apply {
                 setColor(Color.parseColor("#121212")) // Deep Obsidian
-                cornerRadius = 80f // Even smoother for the larger card
-                setStroke(4, Color.parseColor("#6366F1")) // Slightly thicker Indigo Border
-                setAlpha(250)
+                cornerRadius = 80f 
+                setStroke(4, Color.parseColor("#6366F1")) // Indigo Border
+                setAlpha(252)
             }
             container.background = cardBg
             container.elevation = 40f
-            container.setPadding(60, 60, 60, 60) // Extra padding for a spacious feel
+            container.setPadding(60, 60, 60, 60)
 
             val mainLayout = android.widget.LinearLayout(this).apply {
                 orientation = android.widget.LinearLayout.VERTICAL
             }
             container.addView(mainLayout)
 
+            // Header Container (to allow Badge in top right)
+            val headerContainer = FrameLayout(this).apply {
+                layoutParams = android.widget.LinearLayout.LayoutParams(
+                    android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+            }
+            mainLayout.addView(headerContainer)
+
             // 1. Header Row (Avatar + Name)
             val headerRow = android.widget.LinearLayout(this).apply {
                 orientation = android.widget.LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
-                setPadding(0, 0, 0, 16)
+                setPadding(0, 0, 80, 24) // Room for badge/X
             }
-            mainLayout.addView(headerRow)
+            headerContainer.addView(headerRow)
 
             // Avatar (Initial)
             val initial = if (contactName.isNotEmpty()) contactName[0].toString().uppercase() else "?"
             val avatar = TextView(this).apply {
                 text = initial
                 setTextColor(Color.WHITE)
-                textSize = 20f
+                textSize = 22f
                 setTypeface(null, android.graphics.Typeface.BOLD)
                 gravity = Gravity.CENTER
                 val avatarBg = GradientDrawable().apply {
                     shape = GradientDrawable.OVAL
-                    setColor(Color.parseColor("#6366F1")) // Indigo Avatar
+                    setColor(Color.parseColor("#6366F1")) 
+                    setStroke(2, Color.WHITE) // White ring for polish
                 }
                 background = avatarBg
-                layoutParams = FrameLayout.LayoutParams(110, 110).apply {
-                    marginEnd = 24
+                layoutParams = FrameLayout.LayoutParams(120, 120).apply {
+                    marginEnd = 32
                 }
             }
             headerRow.addView(avatar)
@@ -121,7 +131,7 @@ class CallNotesOverlay : Service() {
             val nameText = TextView(this).apply {
                 text = if (contactName.isNotEmpty()) contactName else "Unknown Lead"
                 setTextColor(Color.WHITE)
-                textSize = 22f
+                textSize = 24f
                 setTypeface(null, android.graphics.Typeface.BOLD)
                 ellipsize = android.text.TextUtils.TruncateAt.END
                 maxLines = 1
@@ -130,78 +140,101 @@ class CallNotesOverlay : Service() {
 
             val phoneText = TextView(this).apply {
                 text = phoneNumber
-                setTextColor(Color.parseColor("#94A3B8")) // Muted blue-grey
-                textSize = 14f
+                setTextColor(Color.parseColor("#6366F1")) // Accent phone color
+                textSize = 15f
+                setTypeface(null, android.graphics.Typeface.BOLD)
             }
             nameColumn.addView(phoneText)
 
-            // 2. Note Section (Distinct Box)
-            if (notes.isNotEmpty()) {
-                val noteBox = android.widget.LinearLayout(this).apply {
-                    orientation = android.widget.LinearLayout.VERTICAL
-                    setPadding(32, 24, 32, 24)
-                    val noteBg = GradientDrawable().apply {
-                        setColor(Color.parseColor("#1E1E1E"))
-                        cornerRadius = 24f
-                    }
-                    background = noteBg
-                    layoutParams = android.widget.LinearLayout.LayoutParams(
-                        android.widget.LinearLayout.LayoutParams.MATCH_PARENT, 
-                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
-                    ).apply {
-                        topMargin = 16
-                    }
+            // CRM Badge (Top Right)
+            val badge = TextView(this).apply {
+                text = "CRM LEAD"
+                setTextColor(Color.WHITE)
+                textSize = 9f
+                setTypeface(null, android.graphics.Typeface.BOLD)
+                setPadding(16, 4, 16, 4)
+                val badgeBg = GradientDrawable().apply {
+                    setColor(Color.parseColor("#2D2D3F")) // Subtle indigo-grey
+                    cornerRadius = 100f
                 }
-                mainLayout.addView(noteBox)
-
-                val noteLabel = TextView(this).apply {
-                    text = "LATEST CRM NOTE"
-                    setTextColor(Color.parseColor("#6366F1"))
-                    textSize = 10f
-                    setTypeface(null, android.graphics.Typeface.BOLD)
-                    letterSpacing = 0.1f
-                    setPadding(0, 0, 0, 8)
-                }
-                noteBox.addView(noteLabel)
-
-                val noteText = TextView(this).apply {
-                    text = notes
-                    setTextColor(Color.WHITE)
-                    textSize = 15f
-                    setLineSpacing(0f, 1.2f)
-                }
-                noteBox.addView(noteText)
-            } else {
-                // If no notes, show identified badge
-                val badge = TextView(this).apply {
-                    text = "✓ CRM IDENTIFIED"
-                    setTextColor(Color.parseColor("#10B981")) // Emerald Green
-                    textSize = 11f
-                    setTypeface(null, android.graphics.Typeface.BOLD)
-                    setPadding(0, 16, 0, 0)
-                    gravity = Gravity.CENTER
-                }
-                mainLayout.addView(badge)
+                background = badgeBg
             }
+            val badgeParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                gravity = Gravity.TOP or Gravity.END
+                topMargin = 0
+                rightMargin = 20
+            }
+            headerContainer.addView(badge, badgeParams)
 
-            // Close Button (Fixed positioning)
+            // 2. Note Section (Distinct Box)
+            val noteBox = android.widget.LinearLayout(this).apply {
+                orientation = android.widget.LinearLayout.VERTICAL
+                setPadding(40, 32, 40, 32)
+                val noteBg = GradientDrawable().apply {
+                    setColor(Color.parseColor("#1C1C1E")) // Slightly lighter obsidian
+                    cornerRadius = 40f
+                }
+                background = noteBg
+                layoutParams = android.widget.LinearLayout.LayoutParams(
+                    android.widget.LinearLayout.LayoutParams.MATCH_PARENT, 
+                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    topMargin = 8
+                }
+            }
+            mainLayout.addView(noteBox)
+
+            // "LATEST NOTE" Pill
+            val noteLabel = TextView(this).apply {
+                text = "LATEST NOTE"
+                setTextColor(Color.WHITE)
+                textSize = 10f
+                setTypeface(null, android.graphics.Typeface.BOLD)
+                setPadding(16, 4, 16, 4)
+                val labelBg = GradientDrawable().apply {
+                    setColor(Color.parseColor("#6366F1")) // Indigo pill
+                    cornerRadius = 100f
+                }
+                background = labelBg
+                layoutParams = android.widget.LinearLayout.LayoutParams(
+                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    bottomMargin = 16
+                }
+            }
+            noteBox.addView(noteLabel)
+
+            val noteText = TextView(this).apply {
+                text = if (notes.isNotEmpty()) notes else "Caller identified as CRM Lead."
+                setTextColor(Color.WHITE)
+                textSize = 16f
+                setLineSpacing(0f, 1.3f) // Better readability for multiline
+            }
+            noteBox.addView(noteText)
+
+            // Close Button (Premium style)
             val closeButton = TextView(this).apply {
                 text = "✕"
-                setTextColor(Color.parseColor("#475569"))
-                textSize = 18f
+                setTextColor(Color.WHITE)
+                textSize = 16f
                 gravity = Gravity.CENTER
                 setOnClickListener { dismissOverlay() }
+                setPadding(10, 10, 10, 10)
             }
-            val closeParams = FrameLayout.LayoutParams(80, 80).apply {
-                gravity = Gravity.TOP or Gravity.END
-                topMargin = 10
+            val closeParams = FrameLayout.LayoutParams(70, 70).apply {
+                gravity = Gravity.BOTTOM or Gravity.END
+                bottomMargin = 10
                 rightMargin = 10
             }
             container.addView(closeButton, closeParams)
 
-            overlayView = container // Add container directly instead of wrapping in root
+            overlayView = container
             windowManager?.addView(overlayView, windowParams)
-            Log.d(TAG, "Overlay added to WindowManager successfully")
+            Log.d(TAG, "Super Premium Overlay added successfully")
 
         } catch (e: Exception) {
             Log.e(TAG, "Error showing overlay: ${e.message}", e)
