@@ -48,7 +48,7 @@ class CallNotesOverlay : Service() {
         try {
             windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
             
-            val layoutParams = WindowManager.LayoutParams().apply {
+            val windowParams = WindowManager.LayoutParams().apply {
                 type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
                 } else {
@@ -178,7 +178,7 @@ class CallNotesOverlay : Service() {
             container.addView(closeButton, closeParams)
 
             overlayView = container // Add container directly instead of wrapping in root
-            windowManager?.addView(overlayView, layoutParams)
+            windowManager?.addView(overlayView, windowParams)
             Log.d(TAG, "Overlay added to WindowManager successfully")
 
            
