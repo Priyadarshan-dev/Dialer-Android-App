@@ -37,11 +37,11 @@ class _NotesPopupDialogState extends ConsumerState<NotesPopupDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      backgroundColor: Colors.white,
-      surfaceTintColor: Colors.white,
+      backgroundColor: const Color(0xFF1C1C1E),
+      surfaceTintColor: Colors.transparent,
       title: Text(
         widget.isEdit ? 'Edit Notes' : 'Call Summary',
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: Color(0xFF1E293B)),
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: Colors.white),
       ),
       content: SingleChildScrollView(
         child: Column(
@@ -51,7 +51,7 @@ class _NotesPopupDialogState extends ConsumerState<NotesPopupDialog> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFFF1F5F9),
+                color: Colors.black,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
@@ -63,7 +63,7 @@ class _NotesPopupDialogState extends ConsumerState<NotesPopupDialog> {
                       Expanded(
                         child: Text(
                           widget.call.contactName,
-                          style: const TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
+                          style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.white),
                         ),
                       ),
                     ],
@@ -85,23 +85,24 @@ class _NotesPopupDialogState extends ConsumerState<NotesPopupDialog> {
             const SizedBox(height: 20),
             const Text(
               'Add Notes',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Color(0xFF475569)),
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Color(0xFF94A3B8)),
             ),
             const SizedBox(height: 8),
             TextField(
               controller: _notesController,
+              style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 hintText: 'Discussed pricing, follow up on Monday...',
-                hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+                hintStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 14),
                 filled: true,
-                fillColor: const Color(0xFFF8FAFC),
+                fillColor: Colors.black,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  borderSide: const BorderSide(color: Color(0xFF2C2C2E)),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  borderSide: const BorderSide(color: Color(0xFF2C2C2E)),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),

@@ -86,6 +86,7 @@ class CallHistoryNotifier extends StateNotifier<CallHistoryState> {
       await SharedPreferencesService.saveNoteToSharedPrefs(
         call.phoneNumber,
         call.notes ?? '',
+        contactName: call.contactName,
       );
       print('[DEBUG] CallHistoryNotifier: Android sync complete');
       await _syncToAndroidCallScreening();
@@ -95,8 +96,10 @@ class CallHistoryNotifier extends StateNotifier<CallHistoryState> {
   Future<void> updateNotes(String id, String notes) async {
     print('[DEBUG] CallHistoryNotifier: Updating notes for call $id...');
     
-    // Find phone number before updating
-    final phoneNumber = state.calls.firstWhere((c) => c.id == id).phoneNumber;
+    // Find call record before updating
+    final callRecord = state.calls.firstWhere((c) => c.id == id);
+    final phoneNumber = callRecord.phoneNumber;
+    final contactName = callRecord.contactName;
     
     final result = await _updateCallNotesUseCase(UpdateNotesParams(id: id, notes: notes));
     
@@ -106,12 +109,12 @@ class CallHistoryNotifier extends StateNotifier<CallHistoryState> {
         state = state.copyWith(error: failure.message);
       },
       (_) {
-        _handleUpdateSuccess(phoneNumber, notes);
+        _handleUpdateSuccess(phoneNumber, notes, contactName);
       },
     );
   }
 
-  Future<void> _handleUpdateSuccess(String phoneNumber, String notes) async {
+  Future<void> _handleUpdateSuccess(String phoneNumber, String notes, String contactName) async {
     print('[DEBUG] CallHistoryNotifier: Update notes successful. Refreshing calls...');
     await loadCalls();
     
@@ -123,7 +126,7 @@ class CallHistoryNotifier extends StateNotifier<CallHistoryState> {
     // Sync with Android Call Screening
     if (Platform.isAndroid) {
       print('[DEBUG] CallHistoryNotifier: Syncing updated notes to Android SharedPreferences...');
-      await SharedPreferencesService.saveNoteToSharedPrefs(phoneNumber, notes);
+      await SharedPreferencesService.saveNoteToSharedPrefs(phoneNumber, notes, contactName: contactName);
       print('[DEBUG] CallHistoryNotifier: Android sync complete');
       await _syncToAndroidCallScreening();
     }

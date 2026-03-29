@@ -146,24 +146,29 @@ Future<void> _initApp() async {
   Widget build(BuildContext context) {
     final themeData = ThemeData(
       useMaterial3: true,
+      scaffoldBackgroundColor: Colors.black,
       colorScheme: ColorScheme.fromSeed(
         seedColor: const Color(0xFF6366F1), // Modern Indigo
-        brightness: Brightness.light,
-        surface: Colors.white,
+        brightness: Brightness.dark,
+        surface: const Color(0xFF1C1C1E),
       ),
-      textTheme: GoogleFonts.outfitTextTheme(),
+      textTheme: GoogleFonts.outfitTextTheme().apply(
+        bodyColor: Colors.white,
+        displayColor: Colors.white,
+      ),
       cardTheme: CardThemeData(
         elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        color: const Color(0xFFF8FAFC),
+        color: const Color(0xFF1C1C1E),
       ),
       appBarTheme: AppBarTheme(
         centerTitle: false,
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.black,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Color(0xFF1E293B)),
+        iconTheme: const IconThemeData(color: Colors.white),
         titleTextStyle: GoogleFonts.outfit(
-          color: const Color(0xFF1E293B),
+          color: Colors.white,
           fontSize: 24,
           fontWeight: FontWeight.bold,
         ),
@@ -202,10 +207,10 @@ class _MainNavigatorState extends State<MainNavigator> {
       bottomNavigationBar: Container(
         padding: const EdgeInsets.only(top: 8, bottom: 0),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Colors.black,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+              color: Colors.white.withValues(alpha: 0.05),
               blurRadius: 20,
               offset: const Offset(0, -5),
             ),

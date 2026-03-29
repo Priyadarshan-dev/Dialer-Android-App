@@ -18,10 +18,10 @@ class ContactsScreen extends ConsumerWidget {
     final notifier = ref.read(contactsProvider.notifier);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       appBar: AppBar(
         title: const Text('Contacts'),
-        surfaceTintColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
       ),
       body: Column(
         children: [
@@ -30,10 +30,10 @@ class ContactsScreen extends ConsumerWidget {
             child: TextField(
               decoration: InputDecoration(
                 hintText: 'Search contacts...',
-                hintStyle: TextStyle(color: const Color(0xFF94A3B8), fontSize: 16),
+                hintStyle: TextStyle(color: const Color(0xFF64748B), fontSize: 16),
                 prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF6366F1), size: 24),
                 filled: true,
-                fillColor: const Color(0xFFF1F5F9),
+                fillColor: const Color(0xFF1C1C1E),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
                   borderSide: BorderSide.none,
@@ -108,7 +108,7 @@ class ContactsScreen extends ConsumerWidget {
             const SizedBox(height: 16),
             const Text(
               'No contacts found',
-              style: TextStyle(color: Color(0xFF64748B), fontSize: 16, fontWeight: FontWeight.w500),
+              style: TextStyle(color: Color(0xFF94A3B8), fontSize: 16, fontWeight: FontWeight.w500),
             ),
           ],
         ),
@@ -130,7 +130,7 @@ class ContactsScreen extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             child: Container(
               decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
+                color: const Color(0xFF1C1C1E),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: ListTile(
@@ -158,7 +158,7 @@ class ContactsScreen extends ConsumerWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    color: Color(0xFF1E293B),
+                    color: Colors.white,
                     fontSize: 17,
                     fontWeight: FontWeight.w600,
                   ),
@@ -170,7 +170,7 @@ class ContactsScreen extends ConsumerWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                      color: Color(0xFF64748B),
+                      color: Color(0xFF94A3B8),
                       fontSize: 14,
                     ),
                   ),

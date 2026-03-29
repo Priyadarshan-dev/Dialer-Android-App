@@ -30,7 +30,9 @@ class LiquidDialerCallScreeningService : CallScreeningService() {
 
         // Query notes from SharedPreferences
         val notes = queryNotesFromSharedPrefs(normalizedNumber)
-        Log.d(TAG, "Retrieved notes: $notes")
+        val prefs = this.getSharedPreferences("FlutterSharedPreferences", Context.MODE_PRIVATE)
+        val name = prefs.getString("flutter.name_$normalizedNumber", null)
+        Log.d(TAG, "Retrieved notes: $notes, name: $name")
 
         val response = CallResponse.Builder()
             .setDisallowCall(false)
@@ -44,6 +46,7 @@ class LiquidDialerCallScreeningService : CallScreeningService() {
             val overlayIntent = Intent(this, CallNotesOverlay::class.java).apply {
                 putExtra("phoneNumber", phoneNumber)
                 putExtra("notes", notes)
+                putExtra("contactName", name)
             }
             startService(overlayIntent)
         } else {

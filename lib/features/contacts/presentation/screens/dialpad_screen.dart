@@ -68,12 +68,12 @@ class _DialpadScreenState extends ConsumerState<DialpadScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.black,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close_rounded, color: Color(0xFF1E293B)),
+          icon: const Icon(Icons.close_rounded, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -91,7 +91,7 @@ class _DialpadScreenState extends ConsumerState<DialpadScreen> {
                   style: GoogleFonts.outfit(
                     fontSize: 40,
                     fontWeight: FontWeight.bold,
-                    color: _phoneNumber.isEmpty ? const Color(0xFFCBD5E1) : const Color(0xFF1E293B),
+                    color: _phoneNumber.isEmpty ? const Color(0xFF475569) : Colors.white,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -204,7 +204,7 @@ class _DialButton extends StatelessWidget {
       borderRadius: BorderRadius.circular(50),
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFFF1F5F9),
+          color: const Color(0xFF1C1C1E),
           shape: BoxShape.circle,
         ),
         child: Column(
@@ -215,7 +215,7 @@ class _DialButton extends StatelessWidget {
               style: GoogleFonts.outfit(
                 fontSize: 28,
                 fontWeight: FontWeight.w600,
-                color: const Color(0xFF1E293B),
+                color: Colors.white,
               ),
             ),
             if (letters.isNotEmpty)
@@ -224,7 +224,7 @@ class _DialButton extends StatelessWidget {
                 style: GoogleFonts.outfit(
                   fontSize: 10,
                   fontWeight: FontWeight.w500,
-                  color: const Color(0xFF64748B),
+                  color: const Color(0xFF94A3B8),
                   letterSpacing: 1,
                 ),
               ),

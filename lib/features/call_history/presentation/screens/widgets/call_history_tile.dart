@@ -23,12 +23,12 @@ class CallHistoryTile extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: const Color(0xFF1C1C1E),
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: const Color(0xFFF1F5F9)),
+          border: Border.all(color: const Color(0xFF2C2C2E)),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF6366F1).withValues(alpha: 0.04),
+              color: Colors.black.withValues(alpha: 0.2),
               blurRadius: 20,
               offset: const Offset(0, 8),
             ),
@@ -69,7 +69,7 @@ class CallHistoryTile extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            color: Color(0xFF1E293B),
+                            color: Colors.white,
                             fontSize: 17,
                             fontWeight: FontWeight.w700,
                           ),
@@ -80,7 +80,7 @@ class CallHistoryTile extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            color: Color(0xFF64748B),
+                            color: Color(0xFF94A3B8),
                             fontSize: 14,
                             letterSpacing: 0.5,
                           ),
@@ -148,7 +148,7 @@ class CallHistoryTile extends StatelessWidget {
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          color: Color(0xFF1E293B),
+                          color: Colors.white,
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
                           height: 1.4,

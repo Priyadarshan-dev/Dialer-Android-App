@@ -13,10 +13,10 @@ class CallHistoryScreen extends ConsumerWidget {
     final state = ref.watch(callHistoryProvider);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       appBar: AppBar(
         title: const Text('Call History'),
-        surfaceTintColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
       ),
       body: RefreshIndicator(
         color: const Color(0xFF6366F1),

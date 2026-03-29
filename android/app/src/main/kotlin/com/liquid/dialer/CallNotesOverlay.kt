@@ -30,11 +30,12 @@ class CallNotesOverlay : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val phoneNumber = intent?.getStringExtra("phoneNumber") ?: ""
         val notes = intent?.getStringExtra("notes") ?: ""
+        val name = intent?.getStringExtra("contactName") ?: ""
         
-        Log.d(TAG, "onStartCommand: received phoneNumber: $phoneNumber and notes: $notes")
+        Log.d(TAG, "onStartCommand: received phoneNumber: $phoneNumber, name: $name and notes: $notes")
         
         if (notes.isNotEmpty()) {
-            showOverlay(phoneNumber, notes)
+            showOverlay(phoneNumber, notes, name)
         } else {
             Log.d(TAG, "No notes to show, stopping service")
             stopSelf()
@@ -43,7 +44,7 @@ class CallNotesOverlay : Service() {
         return START_NOT_STICKY
     }
 
-    private fun showOverlay(phoneNumber: String, notes: String) {
+    private fun showOverlay(phoneNumber: String, notes: String, contactName: String) {
         try {
             windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
             
@@ -86,12 +87,25 @@ class CallNotesOverlay : Service() {
             }
             container.addView(contentLayout)
 
+            // Contact Name (if available)
+            if (contactName.isNotEmpty()) {
+                val nameText = TextView(this).apply {
+                    text = contactName
+                    setTextColor(Color.WHITE)
+                    textSize = 22f
+                    setTypeface(null, android.graphics.Typeface.BOLD)
+                    setPadding(0, 0, 0, 4)
+                    gravity = Gravity.CENTER_HORIZONTAL
+                }
+                contentLayout.addView(nameText)
+            }
+
             // Phone Number
             val phoneText = TextView(this).apply {
                 text = phoneNumber
-                setTextColor(Color.WHITE)
-                textSize = 18f
-                setTypeface(null, android.graphics.Typeface.BOLD)
+                setTextColor(if (contactName.isNotEmpty()) Color.parseColor("#DDDDDD") else Color.WHITE)
+                textSize = if (contactName.isNotEmpty()) 16f else 18f
+                setTypeface(null, if (contactName.isNotEmpty()) android.graphics.Typeface.NORMAL else android.graphics.Typeface.BOLD)
                 setPadding(0, 0, 0, 16)
                 gravity = Gravity.CENTER_HORIZONTAL
             }

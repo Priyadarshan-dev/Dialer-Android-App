@@ -4,11 +4,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// This allows the Android Call Screening Service to access notes across processes
 class SharedPreferencesService {
   static const String _noteKeyPrefix = 'notes_';
+  static const String _nameKeyPrefix = 'name_';
 
   /// Save note to SharedPreferences for Android Call Screening Service
-  /// Key format: notes_{normalized_phone_number}
+  /// Key format: notes_{normalized_phone_number} / name_{normalized_phone_number}
   /// Example: notes_919965205472
-  static Future<void> saveNoteToSharedPrefs(String phoneNumber, String notes) async {
+  static Future<void> saveNoteToSharedPrefs(String phoneNumber, String notes, {String? contactName}) async {
     try {
       print('[DEBUG] SharedPreferencesService: Saving note for $phoneNumber');
       
@@ -21,11 +22,15 @@ class SharedPreferencesService {
       }
       
       final key = '$_noteKeyPrefix$normalized';
-      print('[DEBUG] SharedPreferencesService: Key: $key');
-      print('[DEBUG] SharedPreferencesService: Notes: $notes');
+      final nameKey = '$_nameKeyPrefix$normalized';
+      print('[DEBUG] SharedPreferencesService: Key: $key, NameKey: $nameKey');
+      print('[DEBUG] SharedPreferencesService: Notes: $notes, Name: $contactName');
       
       // Save to SharedPreferences
       await prefs.setString(key, notes);
+      if (contactName != null && contactName.isNotEmpty) {
+        await prefs.setString(nameKey, contactName);
+      }
       
       // Verify it was saved
       final saved = prefs.getString(key);
@@ -80,7 +85,9 @@ class SharedPreferencesService {
       }
       
       final key = '$_noteKeyPrefix$normalized';
+      final nameKey = '$_nameKeyPrefix$normalized';
       await prefs.remove(key);
+      await prefs.remove(nameKey);
       
       print('[DEBUG] SharedPreferencesService: Deleted note for $normalized');
       
