@@ -13,12 +13,14 @@ class _AddContactDialogState extends ConsumerState<AddContactDialog> {
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _phoneController = TextEditingController();
+  final _notesController = TextEditingController();
 
   @override
   void dispose() {
     _firstNameController.dispose();
     _lastNameController.dispose();
     _phoneController.dispose();
+    _notesController.dispose();
     super.dispose();
   }
 
@@ -31,6 +33,7 @@ class _AddContactDialogState extends ConsumerState<AddContactDialog> {
       _firstNameController.text.trim(),
       _lastNameController.text.trim(),
       _phoneController.text.trim(),
+      notes: _notesController.text.trim().isEmpty ? null : _notesController.text.trim(),
     );
     Navigator.of(context).pop();
   }
@@ -55,6 +58,8 @@ class _AddContactDialogState extends ConsumerState<AddContactDialog> {
             _buildTextField(label: 'Last Name', controller: _lastNameController, keyboardType: TextInputType.name),
             const SizedBox(height: 16),
             _buildTextField(label: 'Phone Number', controller: _phoneController, keyboardType: TextInputType.phone),
+            const SizedBox(height: 16),
+            _buildTextField(label: 'Notes (Optional)', controller: _notesController, keyboardType: TextInputType.multiline, maxLines: 3),
           ],
         ),
       ),
@@ -79,7 +84,7 @@ class _AddContactDialogState extends ConsumerState<AddContactDialog> {
     );
   }
 
-  Widget _buildTextField({required String label, required TextEditingController controller, required TextInputType keyboardType}) {
+  Widget _buildTextField({required String label, required TextEditingController controller, required TextInputType keyboardType, int maxLines = 1}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -91,6 +96,7 @@ class _AddContactDialogState extends ConsumerState<AddContactDialog> {
         TextField(
           controller: controller,
           keyboardType: keyboardType,
+          maxLines: maxLines,
           style: const TextStyle(color: Colors.white),
           decoration: InputDecoration(
             filled: true,
