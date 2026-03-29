@@ -37,4 +37,26 @@ Future<Either<Failure, List<ContactEntity>>> getContacts() async {
       return Left(DeviceFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> updateContact(String id, String firstName, String lastName, String phone) async {
+    try {
+      await localDataSource.updateContact(id, firstName, lastName, phone);
+      return const Right(null);
+    } catch (e) {
+      print('[DEBUG] ContactRepository: UPDATE ERROR → $e');
+      return Left(DeviceFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteContact(String id) async {
+    try {
+      await localDataSource.deleteContact(id);
+      return const Right(null);
+    } catch (e) {
+      print('[DEBUG] ContactRepository: DELETE ERROR → $e');
+      return Left(DeviceFailure(e.toString()));
+    }
+  }
 }

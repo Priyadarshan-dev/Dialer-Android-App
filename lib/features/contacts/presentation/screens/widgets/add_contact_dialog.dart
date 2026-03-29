@@ -1,18 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dialer_app_poc/providers.dart';
+import 'package:dialer_app_poc/features/contacts/domain/entities/contact_entity.dart';
 
 class AddContactDialog extends ConsumerStatefulWidget {
-  const AddContactDialog({super.key});
+  final ContactEntity? contact;
+  final String? initialPhone;
+
+  const AddContactDialog({
+    super.key, 
+    this.contact,
+    this.initialPhone,
+  });
 
   @override
   ConsumerState<AddContactDialog> createState() => _AddContactDialogState();
 }
 
 class _AddContactDialogState extends ConsumerState<AddContactDialog> {
-  final _firstNameController = TextEditingController();
-  final _lastNameController = TextEditingController();
-  final _phoneController = TextEditingController();
+  late final TextEditingController _firstNameController;
+  late final TextEditingController _lastNameController;
+  late final TextEditingController _phoneController;
+
+  @override
+  void initState() {
+    super.initState();
+    
+    String firstName = '';
+    String lastName = '';
+    String phone = widget.initialPhone ?? '';
+
+    if (widget.contact != null) {
+      final names = widget.contact!.displayName.split(' ');
+      firstName = names.isNotEmpty ? names[0] : '';
+      lastName = names.length > 1 ? names.sublist(1).join(' ') : '';
+      phone = widget.contact!.phoneNumbers.isNotEmpty 
+          ? widget.contact!.phoneNumbers.first 
+          : '';
+    }
+
+    _firstNameController = TextEditingController(text: firstName);
+    _lastNameController = TextEditingController(text: lastName);
+    _phoneController = TextEditingController(text: phone);
+  }
 
   @override
   void dispose() {
@@ -23,27 +53,38 @@ class _AddContactDialogState extends ConsumerState<AddContactDialog> {
   }
 
   void _saveContact() {
-    if (_firstNameController.text.trim().isEmpty || _phoneController.text.trim().isEmpty) {
-      // Basic validation
+    final firstName = _firstNameController.text.trim();
+    final lastName = _lastNameController.text.trim();
+    final phone = _phoneController.text.trim();
+
+    if (firstName.isEmpty || phone.isEmpty) {
       return;
     }
-    ref.read(contactsProvider.notifier).addContact(
-      _firstNameController.text.trim(),
-      _lastNameController.text.trim(),
-      _phoneController.text.trim(),
-    );
+
+    final notifier = ref.read(contactsProvider.notifier);
+    
+    if (widget.contact != null) {
+      // Edit Mode
+      notifier.updateContact(widget.contact!.id, firstName, lastName, phone);
+    } else {
+      // Add Mode
+      notifier.addContact(firstName, lastName, phone);
+    }
+    
     Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
+    final isEdit = widget.contact != null;
+
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       backgroundColor: const Color(0xFF1C1C1E),
       surfaceTintColor: Colors.transparent,
-      title: const Text(
-        'New Contact',
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: Colors.white),
+      title: Text(
+        isEdit ? 'Edit Contact' : 'New Contact',
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: Colors.white),
       ),
       content: SingleChildScrollView(
         child: Column(
@@ -73,7 +114,7 @@ class _AddContactDialogState extends ConsumerState<AddContactDialog> {
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
-          child: const Text('Save', style: TextStyle(fontWeight: FontWeight.bold)),
+          child: Text(isEdit ? 'Update' : 'Save', style: const TextStyle(fontWeight: FontWeight.bold)),
         ),
       ],
     );

@@ -4,6 +4,7 @@ import 'package:dialer_app_poc/providers.dart';
 import 'package:dialer_app_poc/features/call_history/domain/entities/call_history_entity.dart';
 import 'package:dialer_app_poc/features/call_history/presentation/screens/widgets/call_history_tile.dart';
 import 'package:dialer_app_poc/features/call_history/presentation/screens/widgets/notes_popup_dialog.dart';
+import 'package:dialer_app_poc/features/call_history/presentation/screens/call_history_details_screen.dart';
 
 class CallHistoryScreen extends ConsumerWidget {
   const CallHistoryScreen({super.key});
@@ -35,10 +36,20 @@ class CallHistoryScreen extends ConsumerWidget {
       itemCount: calls.length,
       itemBuilder: (context, index) {
         final call = calls[index];
-        return CallHistoryTile(
-          call: call,
-          onEdit: () => _showEditDialog(context, call),
-          onDelete: () => _showDeleteDialog(context, ref, call),
+        return InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CallHistoryDetailsScreen(call: call),
+              ),
+            );
+          },
+          child: CallHistoryTile(
+            call: call,
+            onEdit: () => _showEditDialog(context, call),
+            onDelete: () => _showDeleteDialog(context, ref, call),
+          ),
         );
       },
     );

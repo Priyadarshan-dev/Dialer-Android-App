@@ -10,6 +10,7 @@ import 'package:dialer_app_poc/core/services/notification_service.dart';
 import 'package:dialer_app_poc/features/contacts/presentation/screens/dialpad_screen.dart';
 import 'package:dialer_app_poc/features/contacts/presentation/screens/widgets/add_contact_dialog.dart';
 import 'package:dialer_app_poc/features/settings/presentation/screens/settings_screen.dart';
+import 'package:dialer_app_poc/features/contacts/presentation/screens/contact_details_screen.dart';
 
 class ContactsScreen extends ConsumerWidget {
   const ContactsScreen({super.key});
@@ -184,8 +185,18 @@ class ContactsScreen extends ConsumerWidget {
                 color: const Color(0xFF1C1C1E),
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: ListTile(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ContactDetailsScreen(contact: contact),
+                    ),
+                  );
+                },
+                borderRadius: BorderRadius.circular(16),
+                child: ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 leading: Container(
                   width: 52,
                   height: 52,

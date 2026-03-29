@@ -88,16 +88,38 @@ class _DialpadScreenState extends ConsumerState<DialpadScreen> {
               // Display Number
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Text(
-                  _phoneNumber.isEmpty ? 'Enter Number' : _phoneNumber,
-                  style: GoogleFonts.outfit(
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
-                    color: _phoneNumber.isEmpty ? const Color(0xFF475569) : Colors.white,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (_phoneNumber.isNotEmpty)
+                      const SizedBox(width: 48), // Spacer to keep number centered
+                    Expanded(
+                      child: Text(
+                        _phoneNumber.isEmpty ? 'Enter Number' : _phoneNumber,
+                        style: GoogleFonts.outfit(
+                          fontSize: 40,
+                          fontWeight: FontWeight.bold,
+                          color: _phoneNumber.isEmpty ? const Color(0xFF475569) : Colors.white,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    if (_phoneNumber.isNotEmpty)
+                      SizedBox(
+                        width: 48,
+                        child: IconButton(
+                          icon: const Icon(Icons.add_circle_outline_rounded, color: Color(0xFF6366F1), size: 28),
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AddContactDialog(initialPhone: _phoneNumber),
+                            );
+                          },
+                        ),
+                      ),
+                  ],
                 ),
               ),
               const SizedBox(height: 24),

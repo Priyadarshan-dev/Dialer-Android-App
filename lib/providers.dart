@@ -13,6 +13,8 @@ import 'package:dialer_app_poc/features/contacts/data/repositories/contact_repos
 import 'package:dialer_app_poc/features/contacts/domain/repositories/contact_repository.dart';
 import 'package:dialer_app_poc/features/contacts/domain/usecases/get_contacts_usecase.dart';
 import 'package:dialer_app_poc/features/contacts/domain/usecases/add_contact_usecase.dart';
+import 'package:dialer_app_poc/features/contacts/domain/usecases/update_contact_usecase.dart';
+import 'package:dialer_app_poc/features/contacts/domain/usecases/delete_contact_usecase.dart';
 import 'package:dialer_app_poc/features/contacts/presentation/providers/contacts_provider.dart';
 import 'package:dialer_app_poc/features/contacts/presentation/states/contacts_state.dart';
 import 'package:dialer_app_poc/core/services/call_directory_service.dart';
@@ -43,10 +45,22 @@ final addContactUseCaseProvider = Provider<AddContactUseCase>((ref) {
   return AddContactUseCase(repository);
 });
 
+final updateContactUseCaseProvider = Provider<UpdateContactUseCase>((ref) {
+  final repository = ref.watch(contactRepositoryProvider);
+  return UpdateContactUseCase(repository);
+});
+
+final deleteContactUseCaseProvider = Provider<DeleteContactUseCase>((ref) {
+  final repository = ref.watch(contactRepositoryProvider);
+  return DeleteContactUseCase(repository);
+});
+
 final contactsProvider = StateNotifierProvider<ContactsNotifier, ContactsState>((ref) {
   final getUseCase = ref.watch(getContactsUseCaseProvider);
   final addUseCase = ref.watch(addContactUseCaseProvider);
-  return ContactsNotifier(getUseCase, addUseCase);
+  final updateUseCase = ref.watch(updateContactUseCaseProvider);
+  final deleteUseCase = ref.watch(deleteContactUseCaseProvider);
+  return ContactsNotifier(getUseCase, addUseCase, updateUseCase, deleteUseCase);
 });
 
 // --- Call History Providers ---

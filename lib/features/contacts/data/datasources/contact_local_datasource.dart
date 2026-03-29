@@ -6,6 +6,8 @@ import 'package:uuid/uuid.dart';
 abstract class ContactLocalDataSource {
   Future<List<ContactModel>> getContacts();
   Future<void> addContact(String firstName, String lastName, String phone);
+  Future<void> updateContact(String id, String firstName, String lastName, String phone);
+  Future<void> deleteContact(String id);
 }
 
 class ContactLocalDataSourceImpl implements ContactLocalDataSource {
@@ -45,6 +47,42 @@ class ContactLocalDataSourceImpl implements ContactLocalDataSource {
     );
     
     print('[DEBUG] ContactLocalDataSource: CRM Contact successfully added and synced for Caller ID.');
+  }
+
+  @override
+  Future<void> updateContact(String id, String firstName, String lastName, String phone) async {
+    print('[DEBUG] ContactLocalDataSource: Updating CRM contact in Hive...');
+    
+    final displayName = '$firstName $lastName'.trim();
+    final updatedContact = ContactModel(
+      id: id,
+      displayName: displayName,
+      phoneNumbers: [phone],
+    );
+
+    await box.put(id, updatedContact);
+    
+    // Re-sync with SharedPreferences for updated Caller ID
+    await SharedPreferencesService.saveNoteToSharedPrefs(
+      phone, 
+      '', 
+      contactName: displayName
+    );
+    print('[DEBUG] ContactLocalDataSource: CRM Contact successfully updated.');
+  }
+
+  @override
+  Future<void> deleteContact(String id) async {
+    print('[DEBUG] ContactLocalDataSource: Deleting CRM contact from Hive...');
+    
+    final contact = box.get(id);
+    if (contact != null && contact.phoneNumbers.isNotEmpty) {
+      // Clear Name sync from SharedPreferences if it exists
+      await SharedPreferencesService.deleteNoteFromSharedPrefs(contact.phoneNumbers.first);
+    }
+    
+    await box.delete(id);
+    print('[DEBUG] ContactLocalDataSource: CRM Contact successfully deleted.');
   }
 }
 
