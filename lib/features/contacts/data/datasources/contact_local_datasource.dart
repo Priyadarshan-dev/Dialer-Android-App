@@ -49,12 +49,12 @@ class ContactLocalDataSourceImpl implements ContactLocalDataSource {
       throw Exception('Contacts permission required to save a contact.');
     }
 
-    final newContact = Contact()
-      ..name.first = firstName
-      ..name.last = lastName
-      ..phones = [Phone(phone)];
+    final newContact = Contact(
+      name: Name(first: firstName, last: lastName),
+      phones: [Phone(number: phone)],
+    );
     
-    await newContact.insert();
+    await FlutterContacts.create(newContact);
     print('[DEBUG] ContactLocalDataSource: Contact successfully added natively.');
   }
 }
