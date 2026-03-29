@@ -15,6 +15,15 @@ class LiquidDialerCallScreeningService : CallScreeningService() {
     override fun onScreenCall(callDetails: Call.Details) {
         Log.d(TAG, "===== onScreenCall triggered =====")
         
+        // Only screen incoming calls
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            if (callDetails.callDirection != Call.Details.DIRECTION_INCOMING) {
+                Log.d(TAG, "Ignoring outgoing call")
+                respondWithDefault(callDetails)
+                return
+            }
+        }
+        
         val handle = callDetails.handle
         if (handle == null || handle.scheme != "tel") {
             Log.d(TAG, "Invalid handle or scheme, using default response")
