@@ -8,6 +8,7 @@ import 'package:dialer_app_poc/providers.dart';
 import 'package:dialer_app_poc/core/constants/app_constants.dart';
 import 'package:dialer_app_poc/features/call_history/domain/entities/call_history_entity.dart';
 import 'package:dialer_app_poc/core/services/notification_service.dart';
+import 'package:dialer_app_poc/features/contacts/presentation/screens/widgets/add_contact_dialog.dart';
 
 class DialpadScreen extends ConsumerStatefulWidget {
   const DialpadScreen({super.key});

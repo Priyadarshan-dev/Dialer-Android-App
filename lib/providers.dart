@@ -17,6 +17,7 @@ import 'package:dialer_app_poc/features/contacts/domain/usecases/update_contact_
 import 'package:dialer_app_poc/features/contacts/domain/usecases/delete_contact_usecase.dart';
 import 'package:dialer_app_poc/features/contacts/presentation/providers/contacts_provider.dart';
 import 'package:dialer_app_poc/features/contacts/presentation/states/contacts_state.dart';
+import 'package:dialer_app_poc/features/contacts/data/models/contact_model.dart';
 import 'package:dialer_app_poc/core/services/call_directory_service.dart';
 
 // --- Contacts Providers ---

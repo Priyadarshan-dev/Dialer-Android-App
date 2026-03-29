@@ -63,10 +63,10 @@ class ContactDetailsScreen extends ConsumerWidget {
             _buildHero(contact),
             const SizedBox(height: 32),
             // Quick Actions
-            _buildQuickActions(context, ref),
+            _buildQuickActions(context, ref, contact),
             const SizedBox(height: 40),
             // Contact Info
-            _buildInfoSection(),
+            _buildInfoSection(contact),
             const SizedBox(height: 40),
             // Activity Feed (Call History for this contact)
             _buildActivityFeed(contactCalls),
@@ -75,12 +75,6 @@ class ContactDetailsScreen extends ConsumerWidget {
         ),
       ),
     );
-  }
-
-  // Inside build, the update to calls to sub-widgets
-  // Helper for the widget building to use the watched contact
-  Widget _buildContent(BuildContext context, WidgetRef ref, ContactEntity contact, List<CallHistoryEntity> contactCalls) {
-    return Column(...) // This is just a thought, I'll just update where contact is used directly in build
   }
 
   Widget _buildHero(ContactEntity contact) {
@@ -138,7 +132,7 @@ class ContactDetailsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildQuickActions(BuildContext context, WidgetRef ref) {
+  Widget _buildQuickActions(BuildContext context, WidgetRef ref, ContactEntity contact) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -164,7 +158,7 @@ class ContactDetailsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildInfoSection() {
+  Widget _buildInfoSection(ContactEntity contact) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
       child: Column(

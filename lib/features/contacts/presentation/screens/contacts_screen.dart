@@ -247,6 +247,7 @@ class ContactsScreen extends ConsumerWidget {
                     onPressed: () => _handleCall(context, ref, contact),
                   ),
                 ),
+                ),
               ),
             ),
           );
