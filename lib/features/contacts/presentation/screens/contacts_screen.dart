@@ -190,7 +190,7 @@ class ContactsScreen extends ConsumerWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ContactDetailsScreen(contact: contact),
+                      builder: (context) => ContactDetailsScreen(contactId: contact.id),
                     ),
                   );
                 },

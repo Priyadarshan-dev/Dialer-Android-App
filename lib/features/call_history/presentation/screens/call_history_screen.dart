@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dialer_app_poc/providers.dart';
 import 'package:dialer_app_poc/features/call_history/domain/entities/call_history_entity.dart';
 import 'package:dialer_app_poc/features/call_history/presentation/screens/widgets/call_history_tile.dart';
-import 'package:dialer_app_poc/features/call_history/presentation/screens/widgets/notes_popup_dialog.dart';
 import 'package:dialer_app_poc/features/call_history/presentation/screens/call_history_details_screen.dart';
+import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
+import 'package:uuid/uuid.dart';
+import 'package:dialer_app_poc/core/constants/app_constants.dart';
 
 class CallHistoryScreen extends ConsumerWidget {
   const CallHistoryScreen({super.key});
@@ -37,51 +39,45 @@ class CallHistoryScreen extends ConsumerWidget {
       itemBuilder: (context, index) {
         final call = calls[index];
         return InkWell(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => CallHistoryDetailsScreen(call: call),
-              ),
-            );
-          },
+          onTap: () => _handleCall(context, ref, call),
           child: CallHistoryTile(
             call: call,
-            onEdit: () => _showEditDialog(context, call),
-            onDelete: () => _showDeleteDialog(context, ref, call),
+            onInfo: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CallHistoryDetailsScreen(call: call),
+                ),
+              );
+            },
           ),
         );
       },
     );
   }
 
-  void _showEditDialog(BuildContext context, CallHistoryEntity call) {
-    showDialog(
-      context: context,
-      builder: (context) => NotesPopupDialog(call: call, isEdit: true),
+  Future<void> _handleCall(BuildContext context, WidgetRef ref, CallHistoryEntity call) async {
+    final phoneNumber = call.phoneNumber;
+    final callHistory = CallHistoryEntity(
+      id: const Uuid().v4(),
+      contactName: call.contactName,
+      phoneNumber: phoneNumber,
+      callTime: DateTime.now(),
+      status: AppConstants.statusPending,
     );
+
+    // 1. Save new pending call log
+    await ref.read(callHistoryProvider.notifier).saveCall(callHistory);
+
+    // 2. Launch phone call
+    final res = await FlutterPhoneDirectCaller.callNumber(phoneNumber);
+    
+    if (res == false && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not initiate callback')),
+      );
+    }
   }
 
-  void _showDeleteDialog(BuildContext context, WidgetRef ref, CallHistoryEntity call) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Call'),
-        content: const Text('Are you sure you want to delete this call record?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              ref.read(callHistoryProvider.notifier).deleteCall(call.id);
-              Navigator.pop(context);
-            },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
-  }
+  // Old popup dialogs removed in favor of the full detail screen.
 }

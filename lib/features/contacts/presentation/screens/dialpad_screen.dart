@@ -49,9 +49,12 @@ class _DialpadScreenState extends ConsumerState<DialpadScreen> {
     // 1. Save pending call entry
     await ref.read(callHistoryProvider.notifier).saveCall(callHistory);
 
-    // 2. Initiate call locally
-    print('[DEBUG] DialpadScreen: Initiating call to $_phoneNumber');
-    final res = await FlutterPhoneDirectCaller.callNumber(_phoneNumber);
+    // 2. Clear Dialpad immediately
+    setState(() => _phoneNumber = '');
+
+    // 3. Initiate call locally
+    print('[DEBUG] DialpadScreen: Initiating call to ${callHistory.phoneNumber}');
+    final res = await FlutterPhoneDirectCaller.callNumber(callHistory.phoneNumber);
     
     // 3. iOS Workaround: Show notification reminder (Commented out for stability)
     /*
@@ -111,11 +114,14 @@ class _DialpadScreenState extends ConsumerState<DialpadScreen> {
                         width: 48,
                         child: IconButton(
                           icon: const Icon(Icons.add_circle_outline_rounded, color: Color(0xFF6366F1), size: 28),
-                          onPressed: () {
-                            showDialog(
+                          onPressed: () async {
+                            await showDialog(
                               context: context,
                               builder: (context) => AddContactDialog(initialPhone: _phoneNumber),
                             );
+                            if (mounted) {
+                              setState(() => _phoneNumber = '');
+                            }
                           },
                         ),
                       ),

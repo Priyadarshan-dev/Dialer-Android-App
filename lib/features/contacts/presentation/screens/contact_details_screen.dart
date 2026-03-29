@@ -11,12 +11,24 @@ import 'package:dialer_app_poc/core/constants/app_constants.dart';
 import 'package:intl/intl.dart';
 
 class ContactDetailsScreen extends ConsumerWidget {
-  final ContactEntity contact;
+  final String contactId;
 
-  const ContactDetailsScreen({super.key, required this.contact});
+  const ContactDetailsScreen({super.key, required this.contactId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Watch contacts list to get the latest data automatically
+    final contactsState = ref.watch(contactsProvider);
+    final contact = contactsState.contacts.where((c) => c.id == contactId).firstOrNull;
+
+    // If contact is not found (e.g., deleted), show a placeholder or pop
+    if (contact == null) {
+      return const Scaffold(
+        backgroundColor: Colors.black,
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     // Watch call history to show recent calls for this contact
     final callHistoryState = ref.watch(callHistoryProvider);
     final contactCalls = callHistoryState.calls.where((c) {
@@ -35,11 +47,11 @@ class ContactDetailsScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.edit_outlined, color: Colors.white70),
-            onPressed: () => _editContact(context),
+            onPressed: () => _editContact(context, contact),
           ),
           IconButton(
             icon: const Icon(Icons.delete_outline_rounded, color: Color(0xFFF43F5E)),
-            onPressed: () => _confirmDelete(context, ref),
+            onPressed: () => _confirmDelete(context, ref, contact),
           ),
         ],
       ),
@@ -63,6 +75,12 @@ class ContactDetailsScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  // Inside build, the update to calls to sub-widgets
+  // Helper for the widget building to use the watched contact
+  Widget _buildContent(BuildContext context, WidgetRef ref, ContactEntity contact, List<CallHistoryEntity> contactCalls) {
+    return Column(...) // This is just a thought, I'll just update where contact is used directly in build
   }
 
   Widget _buildHero(ContactEntity contact) {
@@ -128,7 +146,7 @@ class ContactDetailsScreen extends ConsumerWidget {
           icon: Icons.call_rounded,
           label: 'Call',
           color: const Color(0xFF22C55E),
-          onTap: () => _handleCall(context, ref),
+          onTap: () => _handleCall(context, ref, contact),
         ),
         const SizedBox(width: 40),
         _ActionButton(
@@ -298,14 +316,14 @@ class ContactDetailsScreen extends ConsumerWidget {
     );
   }
 
-  void _editContact(BuildContext context) {
+  void _editContact(BuildContext context, ContactEntity contact) {
     showDialog(
       context: context,
       builder: (context) => AddContactDialog(contact: contact),
     );
   }
 
-  void _confirmDelete(BuildContext context, WidgetRef ref) {
+  void _confirmDelete(BuildContext context, WidgetRef ref, ContactEntity contact) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -331,7 +349,7 @@ class ContactDetailsScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _handleCall(BuildContext context, WidgetRef ref) async {
+  Future<void> _handleCall(BuildContext context, WidgetRef ref, ContactEntity contact) async {
     final phoneNumber = contact.phoneNumbers.first;
     final callHistory = CallHistoryEntity(
       id: const Uuid().v4(),
