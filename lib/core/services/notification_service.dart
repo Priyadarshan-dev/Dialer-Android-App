@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 
@@ -8,8 +7,6 @@ class NotificationService {
   NotificationService._internal();
 
   final FlutterLocalNotificationsPlugin _notificationsPlugin = FlutterLocalNotificationsPlugin();
-  
-  final StreamController<String?> selectNotificationStream = StreamController<String?>.broadcast();
 
   Future<void> init() async {
     const AndroidInitializationSettings initializationSettingsAndroid =
@@ -29,10 +26,8 @@ class NotificationService {
     await _notificationsPlugin.initialize(
       settings: initializationSettings,
       onDidReceiveNotificationResponse: (details) {
-        if (details.payload != null) {
-          print('[DEBUG] Notification Tapped with payload: ${details.payload}');
-          selectNotificationStream.add(details.payload);
-        }
+        // Handle notification tap - for now, just opening the app is enough
+        print('[DEBUG] Notification Tapped: ${details.payload}');
       },
     );
 
@@ -44,16 +39,7 @@ class NotificationService {
     await androidImplementation?.requestNotificationsPermission();
   }
 
-  Future<String?> getAppLaunchPayload() async {
-    final NotificationAppLaunchDetails? launchDetails =
-        await _notificationsPlugin.getNotificationAppLaunchDetails();
-    if (launchDetails?.didNotificationLaunchApp ?? false) {
-      return launchDetails?.notificationResponse?.payload;
-    }
-    return null;
-  }
-
-  Future<void> showCallReminder(String contactName, {String? callId}) async {
+  Future<void> showCallReminder(String contactName) async {
     // Show reminder for all platforms (workaround for iOS, consistency for Android)
 
     const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
@@ -81,7 +67,7 @@ class NotificationService {
       title: 'Save Call Notes',
       body: 'Don\'t forget to add notes for $contactName',
       notificationDetails: platformChannelSpecifics,
-      payload: callId != null ? 'call_reminder:$callId' : 'call_reminder',
+      payload: 'call_reminder',
     );
   }
 }

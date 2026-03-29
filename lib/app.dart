@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -23,7 +22,6 @@ class _CRMAppState extends ConsumerState<CRMApp> with WidgetsBindingObserver {
   bool _wasPaused = false;
   bool _isShowingPopup = false;
   DateTime? _lastResumeTime;
-  StreamSubscription<String?>? _notificationSubscription;
 
   // @override
   // void initState() {
@@ -48,51 +46,8 @@ void initState() {
   WidgetsBinding.instance.addObserver(this);
 
   WidgetsBinding.instance.addPostFrameCallback((_) {
-    _initApp(); 
-    _initNotificationListener();
+    _initApp(); // ✅ run AFTER UI is ready
   });
-}
-
-void _initNotificationListener() {
-  // 1. Handle background/foreground taps
-  _notificationSubscription = NotificationService().selectNotificationStream.stream.listen((payload) {
-    _handleNotificationPayload(payload);
-  });
-
-  // 2. Handle cold start (app launch via notification)
-  NotificationService().getAppLaunchPayload().then((payload) {
-    if (payload != null) {
-      print('[DEBUG] App: Launching from notification with payload: $payload');
-      _handleNotificationPayload(payload);
-    }
-  });
-}
-
-void _handleNotificationPayload(String? payload) {
-  if (payload == null || !payload.startsWith('call_reminder:')) return;
-  
-  final callId = payload.replaceFirst('call_reminder:', '');
-  print('[DEBUG] App: Handling call reminder for callId: $callId');
-
-  // Switch to History tab first to give context
-  if (mounted) {
-     // NOTE: We can't directly call setState on MainNavigator here without a key or provider
-     // But we can trigger the popup regardless of which tab is active.
-     
-     // Wait a tiny bit for data to load if app just started
-     Future.delayed(const Duration(milliseconds: 1000), () {
-        final calls = ref.read(callHistoryProvider).calls;
-        final targetCall = calls.where((c) => c.id == callId).firstOrNull;
-        
-        if (targetCall != null) {
-          _showSingleNotesPopup(targetCall);
-        } else {
-          print('[DEBUG] App: Could not find call with id $callId in history');
-          // Fallback: just check for ANY pending calls
-          _checkPendingCalls();
-        }
-     });
-  }
 }
 
 Future<void> _initApp() async {
@@ -115,7 +70,6 @@ Future<void> _initApp() async {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _notificationSubscription?.cancel();
     super.dispose();
   }
 
