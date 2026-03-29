@@ -42,8 +42,12 @@ class CallHistoryTile extends StatelessWidget {
                     ),
                     child: Center(
                       child: Icon(
-                        call.status == 'completed' ? Icons.call_made_rounded : Icons.call_received_rounded,
-                        color: call.status == 'completed' ? const Color(0xFF22C55E) : const Color(0xFFF43F5E),
+                        (call.status == 'completed' || call.status == 'pending')
+                            ? Icons.call_made_rounded 
+                            : Icons.call_received_rounded,
+                        color: (call.status == 'completed' || call.status == 'pending')
+                            ? const Color(0xFF22C55E) 
+                            : const Color(0xFFF43F5E),
                         size: 20,
                       ),
                     ),
@@ -106,22 +110,15 @@ class CallHistoryTile extends StatelessWidget {
             if (call.notes != null && call.notes!.isNotEmpty)
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF6366F1).withValues(alpha: 0.05),
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(20),
-                    bottomRight: Radius.circular(20),
-                  ),
-                ),
+                padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
                 child: Text(
-                  call.notes!,
-                  maxLines: 1,
+                  'Notes : ${call.notes!}',
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF94A3B8),
-                    fontSize: 12,
-                    fontStyle: FontStyle.italic,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
