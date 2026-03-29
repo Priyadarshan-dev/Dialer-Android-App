@@ -69,13 +69,13 @@ class CallNotesOverlay : Service() {
 
             // Create container
             val container = FrameLayout(this)
-            val background = GradientDrawable().apply {
+            val cardBg = GradientDrawable().apply {
                 setColor(Color.parseColor("#121212")) // Deep Obsidian
                 cornerRadius = 64f // Smoother corners for premium feel
                 setStroke(3, Color.parseColor("#6366F1")) // Indigo Border
                 setAlpha(248)
             }
-            container.background = background
+            container.background = cardBg
             container.elevation = 32f
             container.setPadding(40, 40, 40, 40)
 
