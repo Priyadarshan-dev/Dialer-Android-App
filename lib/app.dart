@@ -51,22 +51,41 @@ void initState() {
 }
 
 Future<void> _initApp() async {
-  print('[DEBUG] App: Initializing app...');
+  print('[DEBUG] App: Initializing app (non-blocking)...');
 
-  // Wait for the native rootViewController to be fully ready on iOS
-  await Future.delayed(const Duration(milliseconds: 500));
+  try {
+    // Wait for the native layer to be ready without blocking UI thread
+    await Future.delayed(const Duration(milliseconds: 300));
 
-  // Explicitly request contacts permission before loading contacts
-  print('[DEBUG] App: Requesting Contacts permission...');
-  final status = await Permission.contacts.request();
-  print('[DEBUG] App: Contacts permission status: $status');
+    // Request contacts permission asynchronously
+    print('[DEBUG] App: Triggering Contacts permission request...');
+    Permission.contacts.request().then((status) {
+      print('[DEBUG] App: Permission status received: $status');
+      
+      // Once permission is handled (or if already granted), load data
+      if (mounted) {
+        _loadInitialData();
+      }
+    });
 
-  if (mounted) {
-    await ref.read(contactsProvider.notifier).loadContacts();
-    await ref.read(callHistoryProvider.notifier).loadCalls();
-    
-    // ✅ Check for pending calls even on fresh app start (important for notification clicks)
-    _checkPendingCalls();
+  } catch (e) {
+    print('[DEBUG] App: Initialization warning: $e');
+  }
+}
+
+Future<void> _loadInitialData() async {
+  try {
+    print('[DEBUG] App: Loading initial data...');
+    // We don't await these globally here to keep the UI fluid
+    ref.read(contactsProvider.notifier).loadContacts();
+    ref.read(callHistoryProvider.notifier).loadCalls().then((_) {
+      if (mounted) {
+        // ✅ Check for pending calls ONLY after history is loaded
+        _checkPendingCalls();
+      }
+    });
+  } catch (e) {
+    print('[DEBUG] App: Data load error: $e');
   }
 }
 

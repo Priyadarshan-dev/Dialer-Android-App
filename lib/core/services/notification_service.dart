@@ -40,8 +40,8 @@ class NotificationService {
   }
 
   Future<void> showCallReminder(String contactName) async {
-    // Show reminder for all platforms (workaround for iOS, consistency for Android)
-
+    // Notification logic commented out to improve stability and avoid popups
+    /*
     const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
       'call_reminders',
       'Call Reminders',
@@ -69,5 +69,7 @@ class NotificationService {
       notificationDetails: platformChannelSpecifics,
       payload: 'call_reminder',
     );
+    */
+    print('[DEBUG] NotificationService: Reminder suppressed for $contactName');
   }
 }

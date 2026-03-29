@@ -53,10 +53,12 @@ class _DialpadScreenState extends ConsumerState<DialpadScreen> {
     print('[DEBUG] DialpadScreen: Initiating call to $_phoneNumber');
     final res = await FlutterPhoneDirectCaller.callNumber(_phoneNumber);
     
-    // 3. iOS Workaround: Show notification reminder
+    // 3. iOS Workaround: Show notification reminder (Commented out for stability)
+    /*
     if (res == true || Platform.isIOS) {
       await NotificationService().showCallReminder('Manual Dial ($_phoneNumber)');
     }
+    */
 
     if (res == false && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(

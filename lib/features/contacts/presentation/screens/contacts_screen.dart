@@ -267,12 +267,13 @@ class ContactsScreen extends ConsumerWidget {
     final res = await FlutterPhoneDirectCaller.callNumber(phoneNumber);
     print('[DEBUG] ContactsScreen: Direct call result: $res');
     
-    // 3. iOS Workaround: Show a persistent notification reminder
-    // We check if res is true OR if we are on iOS (where res can sometimes be null/delayed)
+    // 3. iOS Workaround: Show a persistent notification reminder (Commented out for stability)
+    /*
     if (res == true || Platform.isIOS) {
        print('[DEBUG] ContactsScreen: Call initiated (res=$res), showing notification reminder');
        await NotificationService().showCallReminder(contact.displayName);
     }
+    */
     
     if (res == false && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
