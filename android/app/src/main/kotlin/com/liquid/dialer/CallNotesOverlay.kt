@@ -83,55 +83,70 @@ class CallNotesOverlay : Service() {
             
             val contentLayout = android.widget.LinearLayout(this).apply {
                 orientation = android.widget.LinearLayout.VERTICAL
-                gravity = Gravity.CENTER // Center content within container
+                gravity = Gravity.START
             }
             container.addView(contentLayout)
 
-            // Contact Name (if available)
-            if (contactName.isNotEmpty()) {
-                val nameText = TextView(this).apply {
-                    text = contactName
-                    setTextColor(Color.WHITE)
-                    textSize = 22f
-                    setTypeface(null, android.graphics.Typeface.BOLD)
-                    setPadding(0, 0, 0, 4)
-                    gravity = Gravity.CENTER_HORIZONTAL
+            fun addLabeledRow(label: String, value: String, isBold: Boolean = false, textColor: Int = Color.WHITE) {
+                val row = android.widget.LinearLayout(this).apply {
+                    orientation = android.widget.LinearLayout.HORIZONTAL
+                    setPadding(0, 4, 0, 4)
                 }
-                contentLayout.addView(nameText)
+                
+                val labelView = TextView(this).apply {
+                    text = "$label "
+                    setTextColor(Color.parseColor("#BBBBBB"))
+                    textSize = 14f
+                    setTypeface(null, android.graphics.Typeface.BOLD)
+                }
+                
+                val valueView = TextView(this).apply {
+                    text = value
+                    setTextColor(textColor)
+                    textSize = 16f
+                    if (isBold) setTypeface(null, android.graphics.Typeface.BOLD)
+                }
+                
+                row.addView(labelView)
+                row.addView(valueView)
+                contentLayout.addView(row)
             }
 
-            // Phone Number
-            val phoneText = TextView(this).apply {
-                text = phoneNumber
-                setTextColor(if (contactName.isNotEmpty()) Color.parseColor("#DDDDDD") else Color.WHITE)
-                textSize = if (contactName.isNotEmpty()) 16f else 18f
-                setTypeface(null, if (contactName.isNotEmpty()) android.graphics.Typeface.NORMAL else android.graphics.Typeface.BOLD)
-                setPadding(0, 0, 0, 16)
-                gravity = Gravity.CENTER_HORIZONTAL
+            // Name Row
+            if (contactName.isNotEmpty()) {
+                addLabeledRow("Name : ", contactName, isBold = true)
             }
-            contentLayout.addView(phoneText)
 
-            // Saved Notes static label
+            // Phone Row
+            addLabeledRow("Phone : ", phoneNumber, textColor = Color.parseColor("#6366F1"))
+
+            // Divider or spacer if notes exist
             if (notes.isNotEmpty()) {
-                val labelText = TextView(this).apply {
-                    text = "SAVED NOTES:"
+                val divider = View(this).apply {
+                    layoutParams = android.widget.LinearLayout.LayoutParams(
+                        android.widget.LinearLayout.LayoutParams.MATCH_PARENT, 2).apply {
+                        setMargins(0, 16, 0, 16)
+                    }
+                    setBackgroundColor(Color.parseColor("#444444"))
+                }
+                contentLayout.addView(divider)
+
+                // Notes Header
+                val notesHeader = TextView(this).apply {
+                    text = "Notes :"
                     setTextColor(Color.parseColor("#BBBBBB"))
                     textSize = 12f
                     setTypeface(null, android.graphics.Typeface.BOLD)
                     setPadding(0, 0, 0, 8)
-                    gravity = Gravity.CENTER_HORIZONTAL
                 }
-                contentLayout.addView(labelText)
+                contentLayout.addView(notesHeader)
 
-                // Notes
+                // Notes Content
                 val notesText = TextView(this).apply {
                     text = notes
                     setTextColor(Color.WHITE)
                     textSize = 15f
-                    maxLines = 6
-                    ellipsize = android.text.TextUtils.TruncateAt.END
-                    gravity = Gravity.CENTER_HORIZONTAL
-                    textAlignment = View.TEXT_ALIGNMENT_CENTER
+                    setLineSpacing(0f, 1.2f)
                 }
                 contentLayout.addView(notesText)
             } else if (contactName.isNotEmpty()) {
@@ -141,8 +156,7 @@ class CallNotesOverlay : Service() {
                     setTextColor(Color.parseColor("#6366F1"))
                     textSize = 12f
                     setTypeface(null, android.graphics.Typeface.BOLD)
-                    setPadding(0, 8, 0, 0)
-                    gravity = Gravity.CENTER_HORIZONTAL
+                    setPadding(0, 12, 0, 0)
                 }
                 contentLayout.addView(leadBadge)
             }

@@ -17,7 +17,11 @@ class SharedPreferencesService {
           final phone = contact.phoneNumbers.first;
           final normalized = _normalizePhoneNumber(phone);
           if (normalized.isNotEmpty) {
-            await prefs.setString('$_noteKeyPrefix$normalized', ''); // Ensure note key exists
+            // Check if there is already a note before setting it to empty
+            final existingNote = prefs.getString('$_noteKeyPrefix$normalized');
+            if (existingNote == null) {
+              await prefs.setString('$_noteKeyPrefix$normalized', ''); 
+            }
             await prefs.setString('$_nameKeyPrefix$normalized', contact.displayName);
           }
         }
