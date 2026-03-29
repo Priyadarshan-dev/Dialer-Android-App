@@ -10,16 +10,23 @@ import 'package:uuid/uuid.dart';
 import 'package:dialer_app_poc/core/constants/app_constants.dart';
 import 'package:intl/intl.dart';
 
-class ContactDetailsScreen extends ConsumerWidget {
+class ContactDetailsScreen extends ConsumerStatefulWidget {
   final String contactId;
 
   const ContactDetailsScreen({super.key, required this.contactId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ContactDetailsScreen> createState() => _ContactDetailsScreenState();
+}
+
+class _ContactDetailsScreenState extends ConsumerState<ContactDetailsScreen> {
+  bool _isActivityExpanded = false;
+
+  @override
+  Widget build(BuildContext context) {
     // Watch contacts list to get the latest data automatically
     final contactsState = ref.watch(contactsProvider);
-    final contact = contactsState.contacts.where((c) => c.id == contactId).firstOrNull;
+    final contact = contactsState.contacts.where((c) => c.id == widget.contactId).firstOrNull;
 
     // If contact is not found (e.g., deleted), show a placeholder or pop
     if (contact == null) {
@@ -214,19 +221,48 @@ class ContactDetailsScreen extends ConsumerWidget {
   }
 
   Widget _buildActivityFeed(List<CallHistoryEntity> calls) {
+    final displayedCalls = _isActivityExpanded ? calls : calls.take(3).toList();
+    final hasMore = calls.length > 3;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'RECENT ACTIVITY',
-            style: GoogleFonts.outfit(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: const Color(0xFF475569),
-              letterSpacing: 1.5,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'RECENT ACTIVITY',
+                style: GoogleFonts.outfit(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF475569),
+                  letterSpacing: 1.5,
+                ),
+              ),
+              if (hasMore)
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _isActivityExpanded = !_isActivityExpanded;
+                    });
+                  },
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    minimumSize: const Size(0, 0),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: Text(
+                    _isActivityExpanded ? 'Show Less' : 'See More',
+                    style: GoogleFonts.outfit(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF6366F1),
+                    ),
+                  ),
+                ),
+            ],
           ),
           const SizedBox(height: 16),
           if (calls.isEmpty)
@@ -253,10 +289,10 @@ class ContactDetailsScreen extends ConsumerWidget {
             ListView.separated(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: calls.take(5).length,
+              itemCount: displayedCalls.length,
               separatorBuilder: (context, index) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
-                final call = calls[index];
+                final call = displayedCalls[index];
                 return Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -266,11 +302,11 @@ class ContactDetailsScreen extends ConsumerWidget {
                   child: Row(
                     children: [
                       Icon(
-                        call.status == AppConstants.statusCompleted 
+                        (call.status == AppConstants.statusCompleted || call.status == AppConstants.statusPending)
                             ? Icons.call_made_rounded 
                             : Icons.call_missed_rounded,
                         size: 18,
-                        color: call.status == AppConstants.statusCompleted 
+                        color: (call.status == AppConstants.statusCompleted || call.status == AppConstants.statusPending)
                             ? const Color(0xFF22C55E) 
                             : const Color(0xFFF43F5E),
                       ),
@@ -280,8 +316,8 @@ class ContactDetailsScreen extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              call.notes?.isNotEmpty == true ? call.notes! : 'Interactive call session',
-                              maxLines: 1,
+                              'Notes : ${call.notes?.isNotEmpty == true ? call.notes! : 'No notes recorded'}',
+                              maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: GoogleFonts.outfit(
                                 fontSize: 14,
