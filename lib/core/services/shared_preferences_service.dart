@@ -6,9 +6,29 @@ class SharedPreferencesService {
   static const String _noteKeyPrefix = 'notes_';
   static const String _nameKeyPrefix = 'name_';
 
+  /// Save all contacts to SharedPreferences to sync Caller ID for everyone
+  static Future<void> syncAllContactsToSharedPrefs(List<dynamic> contacts) async {
+    try {
+      print('[DEBUG] SharedPreferencesService: Syncing all ${contacts.length} contacts...');
+      final prefs = await SharedPreferences.getInstance();
+      
+      for (var contact in contacts) {
+        if (contact.phoneNumbers.isNotEmpty) {
+          final phone = contact.phoneNumbers.first;
+          final normalized = _normalizePhoneNumber(phone);
+          if (normalized.isNotEmpty) {
+            await prefs.setString('$_noteKeyPrefix$normalized', ''); // Ensure note key exists
+            await prefs.setString('$_nameKeyPrefix$normalized', contact.displayName);
+          }
+        }
+      }
+      print('[DEBUG] SharedPreferencesService: All contacts synced.');
+    } catch (e) {
+      print('[DEBUG] SharedPreferencesService: Error syncing all: $e');
+    }
+  }
+
   /// Save note to SharedPreferences for Android Call Screening Service
-  /// Key format: notes_{normalized_phone_number} / name_{normalized_phone_number}
-  /// Example: notes_919965205472
   static Future<void> saveNoteToSharedPrefs(String phoneNumber, String notes, {String? contactName}) async {
     try {
       print('[DEBUG] SharedPreferencesService: Saving note for $phoneNumber');
@@ -23,26 +43,16 @@ class SharedPreferencesService {
       
       final key = '$_noteKeyPrefix$normalized';
       final nameKey = '$_nameKeyPrefix$normalized';
-      print('[DEBUG] SharedPreferencesService: Key: $key, NameKey: $nameKey');
-      print('[DEBUG] SharedPreferencesService: Notes: $notes, Name: $contactName');
       
       // Save to SharedPreferences
       await prefs.setString(key, notes);
-      if (contactName != null && contactName.isNotEmpty) {
+      if (contactName != null) {
         await prefs.setString(nameKey, contactName);
       }
       
-      // Verify it was saved
-      final saved = prefs.getString(key);
-      print('[DEBUG] SharedPreferencesService: Saved note for $normalized');
-      print('[DEBUG] SharedPreferencesService: Verification - Data persisted: ${saved == notes}');
-      
-      // List all notes for debugging
-      _debugListAllNotes(prefs);
-      
+      print('[DEBUG] SharedPreferencesService: Saved data for $normalized');
     } catch (e) {
       print('[DEBUG] SharedPreferencesService: Error saving note: $e');
-      rethrow;
     }
   }
 
@@ -132,31 +142,22 @@ class SharedPreferencesService {
   /// +91 99652 05472 → 919965205472
   /// 9965205472 → 9965205472
   /// +1-555-123-4567 → 15551234567
+  /// Normalize phone number to match Kotlin normalization (Last 10 Digits)
   static String _normalizePhoneNumber(String number) {
-    if (number.isEmpty) {
-      return '';
-    }
+    if (number.isEmpty) return '';
 
     try {
-      // Check if international format (starts with +)
-      final isInternational = number.startsWith('+');
+      // Step 1: Remove all non-digit characters
+      var sanitized = number.replaceAll(RegExp(r'\D'), '');
 
-      // Step 1: Remove all non-digit characters except leading '+'
-      var sanitized = number.replaceAll(RegExp(r'(?!^\+)\D'), '');
-
-      // Step 2: Remove leading zeros if it's not an international format
-      if (!sanitized.startsWith('+')) {
-        sanitized = sanitized.replaceFirst(RegExp(r'^0+'), '');
-      }
-
-      // Step 3: For international numbers, keep the digits after the '+'
-      if (sanitized.startsWith('+')) {
-        sanitized = sanitized.substring(1);
+      // Step 2: Take only the last 10 digits (Standard local part for India/US)
+      if (sanitized.length > 10) {
+        sanitized = sanitized.substring(sanitized.length - 10);
       }
 
       return sanitized;
     } catch (e) {
-      print('[DEBUG] SharedPreferencesService: Error normalizing phone number: $e');
+      print('[DEBUG] SharedPreferencesService: Error normalizing: $e');
       return number;
     }
   }

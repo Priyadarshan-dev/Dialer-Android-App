@@ -9,6 +9,8 @@ import 'package:dialer_app_poc/features/call_history/domain/entities/call_histor
 import 'package:dialer_app_poc/core/services/notification_service.dart';
 import 'package:dialer_app_poc/features/contacts/presentation/screens/dialpad_screen.dart';
 import 'package:dialer_app_poc/features/contacts/presentation/screens/widgets/add_contact_dialog.dart';
+import 'package:dialer_app_poc/features/contacts/presentation/providers/permission_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class ContactsScreen extends ConsumerWidget {
   const ContactsScreen({super.key});
@@ -37,6 +39,7 @@ class ContactsScreen extends ConsumerWidget {
       ),
       body: Column(
         children: [
+          const _OverlayPermissionBanner(),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
             child: TextField(
@@ -269,5 +272,76 @@ class ContactsScreen extends ConsumerWidget {
         const SnackBar(content: Text('Could not initiate direct call')),
       );
     }
+  }
+}
+class _OverlayPermissionBanner extends ConsumerWidget {
+  const _OverlayPermissionBanner();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (!Platform.isAndroid) return const SizedBox.shrink();
+    
+    final isGranted = ref.watch(overlayPermissionProvider);
+    if (isGranted) return const SizedBox.shrink();
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFEF2F2),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFFCA5A5)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.warning_amber_rounded, color: Color(0xFFB91C1C), size: 24),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  'Overlay Permission Required',
+                  style: TextStyle(
+                    color: Color(0xFFB91C1C),
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              IconButton(
+                visualDensity: VisualDensity.compact,
+                icon: const Icon(Icons.refresh_rounded, color: Color(0xFFB91C1C)),
+                onPressed: () => ref.read(overlayPermissionProvider.notifier).checkPermission(),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'To show Caller ID popups, please allow "Display over other apps" for Swift Call in your settings.',
+            style: TextStyle(color: Color(0xFF7F1D1D), fontSize: 13),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () async {
+                await openAppSettings();
+                // Check again after returning from settings
+                ref.read(overlayPermissionProvider.notifier).checkPermission();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFB91C1C),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                elevation: 0,
+              ),
+              child: const Text('Open Settings'),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

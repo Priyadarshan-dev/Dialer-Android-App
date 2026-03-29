@@ -3,6 +3,7 @@ import 'package:dialer_app_poc/core/usecases/usecase.dart';
 import 'package:dialer_app_poc/features/contacts/domain/usecases/get_contacts_usecase.dart';
 import 'package:dialer_app_poc/features/contacts/domain/usecases/add_contact_usecase.dart';
 import 'package:dialer_app_poc/features/contacts/presentation/states/contacts_state.dart';
+import 'package:dialer_app_poc/core/services/shared_preferences_service.dart';
 
 class ContactsNotifier extends StateNotifier<ContactsState> {
   final GetContactsUseCase _getContactsUseCase;
@@ -27,6 +28,8 @@ class ContactsNotifier extends StateNotifier<ContactsState> {
           contacts: contacts,
           filtered: contacts,
         );
+        // Sync to SharedPreferences for background service matching
+        SharedPreferencesService.syncAllContactsToSharedPrefs(contacts);
       },
     );
   }

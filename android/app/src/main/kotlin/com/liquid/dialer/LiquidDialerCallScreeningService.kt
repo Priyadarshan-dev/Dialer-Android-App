@@ -7,6 +7,9 @@ import android.net.Uri
 import android.telecom.Call
 import android.telecom.CallScreeningService
 import android.util.Log
+import android.widget.Toast
+import android.os.Handler
+import android.os.Looper
 
 class LiquidDialerCallScreeningService : CallScreeningService() {
     private val TAG = "CallScreeningService"
@@ -15,15 +18,20 @@ class LiquidDialerCallScreeningService : CallScreeningService() {
     override fun onScreenCall(callDetails: Call.Details) {
         Log.d(TAG, "===== onScreenCall triggered =====")
         
-        // Only screen incoming calls
+        // Show debug toast so user knows service is "tracking"
+        Handler(Looper.getMainLooper()).post {
+            Toast.makeText(applicationContext, "Swift Call: Checking call...", Toast.LENGTH_SHORT).show()
+        }
+
+        // Only ignore if explicitly outgoing
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
-            if (callDetails.callDirection != Call.Details.DIRECTION_INCOMING) {
+            if (callDetails.callDirection == Call.Details.DIRECTION_OUTGOING) {
                 Log.d(TAG, "Ignoring outgoing call")
                 respondWithDefault(callDetails)
                 return
             }
         }
-        
+
         val handle = callDetails.handle
         if (handle == null || handle.scheme != "tel") {
             Log.d(TAG, "Invalid handle or scheme, using default response")
@@ -124,29 +132,17 @@ class LiquidDialerCallScreeningService : CallScreeningService() {
      * +1-555-123-4567 → 15551234567
      */
     private fun normalizePhoneNumber(phoneNumber: String): String {
-        if (phoneNumber.isEmpty()) {
-            return ""
-        }
+        if (phoneNumber.isEmpty()) return ""
 
-        val isInternational = phoneNumber.startsWith("+")
+        // Step 1: Remove all non-digit characters
+        var sanitized = phoneNumber.replace(Regex("\\D"), "")
         
-        // Step 1: Remove all non-digit characters except leading '+'
-        var sanitized = phoneNumber.replace(Regex("(?!^\\+)\\D"), "")
-        Log.d(TAG, "After removing non-digits: $sanitized")
-        
-        // Step 2: Remove leading zeros if it's not an international format
-        if (!sanitized.startsWith("+")) {
-            sanitized = sanitized.replaceFirst(Regex("^0+"), "")
-            Log.d(TAG, "After removing leading zeros: $sanitized")
+        // Step 2: Take only the last 10 digits
+        if (sanitized.length > 10) {
+            sanitized = sanitized.substring(sanitized.length - 10)
         }
         
-        // Step 3: For international numbers, keep the digits after the '+'
-        if (sanitized.startsWith("+")) {
-            sanitized = sanitized.substring(1)
-            Log.d(TAG, "After removing +: $sanitized")
-        }
-        
-        Log.d(TAG, "Final normalization: '$phoneNumber' → '$sanitized'")
+        Log.d(TAG, "Final normalization (10-digit): '$phoneNumber' → '$sanitized'")
         return sanitized
     }
 }
