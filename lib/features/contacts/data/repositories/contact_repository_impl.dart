@@ -25,9 +25,9 @@ Future<Either<Failure, List<ContactEntity>>> getContacts() async {
 }
 
   @override
-  Future<Either<Failure, void>> addContact(String firstName, String lastName, String phone, {String? notes}) async {
+  Future<Either<Failure, void>> addContact(String firstName, String lastName, String phone) async {
     try {
-      await localDataSource.addContact(firstName, lastName, phone, notes: notes);
+      await localDataSource.addContact(firstName, lastName, phone);
       return const Right(null);
     } catch (e) {
       print('[DEBUG] ContactRepository: ADD ERROR → $e');

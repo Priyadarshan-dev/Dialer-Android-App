@@ -17,15 +17,11 @@ class ContactModel extends HiveObject {
   @HiveField(3)
   final String? photoUrl;
 
-  @HiveField(4)
-  final String? notes;
-
   ContactModel({
     required this.id,
     required this.displayName,
     required this.phoneNumbers,
     this.photoUrl,
-    this.notes,
   });
 
   ContactEntity toEntity() {
@@ -34,7 +30,6 @@ class ContactModel extends HiveObject {
       displayName: displayName,
       phoneNumbers: phoneNumbers,
       photoUrl: photoUrl,
-      notes: notes,
     );
   }
 }

@@ -7,9 +7,8 @@ class AddContactParams {
   final String firstName;
   final String lastName;
   final String phone;
-  final String? notes;
 
-  AddContactParams({required this.firstName, required this.lastName, required this.phone, this.notes});
+  AddContactParams({required this.firstName, required this.lastName, required this.phone});
 }
 
 class AddContactUseCase implements UseCase<void, AddContactParams> {
@@ -19,6 +18,6 @@ class AddContactUseCase implements UseCase<void, AddContactParams> {
 
   @override
   Future<Either<Failure, void>> call(AddContactParams params) async {
-    return await repository.addContact(params.firstName, params.lastName, params.phone, notes: params.notes);
+    return await repository.addContact(params.firstName, params.lastName, params.phone);
   }
 }

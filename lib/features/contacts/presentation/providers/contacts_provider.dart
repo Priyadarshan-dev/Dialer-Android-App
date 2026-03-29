@@ -48,14 +48,9 @@ class ContactsNotifier extends StateNotifier<ContactsState> {
     }
   }
 
-  Future<void> addContact(String firstName, String lastName, String phone, {String? notes}) async {
+  Future<void> addContact(String firstName, String lastName, String phone) async {
     print('[DEBUG] ContactsNotifier: Adding contact...');
-    final result = await _addContactUseCase(AddContactParams(
-      firstName: firstName, 
-      lastName: lastName, 
-      phone: phone, 
-      notes: notes,
-    ));
+    final result = await _addContactUseCase(AddContactParams(firstName: firstName, lastName: lastName, phone: phone));
     
     result.fold(
       (failure) {
