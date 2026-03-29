@@ -16,25 +16,7 @@ class ContactLocalDataSourceImpl implements ContactLocalDataSource {
   @override
   Future<List<ContactModel>> getContacts() async {
     print('[DEBUG] ContactLocalDataSource: Fetching CRM contacts from Hive...');
-    
-    // Inject Mock Data if empty (First Launch experience)
-    if (box.isEmpty) {
-      print('[DEBUG] ContactLocalDataSource: Box is empty, injecting mock leads...');
-      await _injectMockLeads();
-    }
-    
     return box.values.toList();
-  }
-
-  Future<void> _injectMockLeads() async {
-    final mockLeads = [
-      {'first': 'John', 'last': 'Salesman', 'phone': '5551234567'},
-      {'first': 'Jane', 'last': 'Lead', 'phone': '5559876543'},
-    ];
-
-    for (var lead in mockLeads) {
-      await addContact(lead['first']!, lead['last']!, lead['phone']!);
-    }
   }
 
   @override

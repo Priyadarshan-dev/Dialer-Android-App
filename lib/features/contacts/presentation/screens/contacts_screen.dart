@@ -111,15 +111,44 @@ class ContactsScreen extends ConsumerWidget {
       );
     }
 
+    if (state.contacts.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: const Color(0xFF6366F1).withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.people_outline_rounded, size: 64, color: Color(0xFF6366F1)),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Your CRM is empty',
+              style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Add your first lead using the + button above.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+            ),
+          ],
+        ),
+      );
+    }
+
     if (state.filtered.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.search_off_rounded, size: 64, color: Colors.grey[300]),
+            const Icon(Icons.search_off_rounded, size: 64, color: Color(0xFF334155)),
             const SizedBox(height: 16),
             const Text(
-              'No contacts found',
+              'No matching contacts found',
               style: TextStyle(color: Color(0xFF94A3B8), fontSize: 16, fontWeight: FontWeight.w500),
             ),
           ],
