@@ -153,6 +153,20 @@ class CallHistoryNotifier extends StateNotifier<CallHistoryState> {
     );
   }
 
+  Future<void> deleteMultipleCalls(List<String> ids) async {
+    print('[DEBUG] CallHistoryNotifier: Deleting multiple calls: ${ids.length} records...');
+    if (ids.isEmpty) return;
+
+    // Grab phone number before deleting for sync cleanup
+    final matchingCalls = state.calls.where((c) => ids.contains(c.id)).toList();
+    final phoneNumber = matchingCalls.isNotEmpty ? matchingCalls.first.phoneNumber : null;
+
+    for (final id in ids) {
+      await _deleteCallUseCase(id);
+    }
+    _handleDeleteSuccess(phoneNumber);
+  }
+
   Future<void> _handleDeleteSuccess(String? phoneNumber) async {
     print('[DEBUG] CallHistoryNotifier: Delete successful. Refreshing calls...');
     await loadCalls();

@@ -29,24 +29,60 @@ class CallHistoryScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildList(BuildContext context, WidgetRef ref, List<CallHistoryEntity> calls) {
+  /// Groups calls by phone number, sorted newest first. Returns a list of groups
+  /// where each group is a list of calls for the same contact (sorted newest→oldest).
+  List<List<CallHistoryEntity>> _groupCalls(List<CallHistoryEntity> calls) {
+    final Map<String, List<CallHistoryEntity>> grouped = {};
+    for (final call in calls) {
+      grouped.putIfAbsent(call.phoneNumber, () => []).add(call);
+    }
+
+    // Each group is already newest-first since the provider sorts before passing here.
+    // Sort groups so that the most recent call across all groups comes first.
+    final groups = grouped.values.toList();
+    groups.sort((a, b) => b.first.callTime.compareTo(a.first.callTime));
+    return groups;
+  }
+
+  Widget _buildList(
+      BuildContext context, WidgetRef ref, List<CallHistoryEntity> calls) {
     if (calls.isEmpty) {
       return const Center(child: Text('No call history.'));
     }
 
+    final groups = _groupCalls(calls);
+
     return ListView.builder(
-      itemCount: calls.length,
+      itemCount: groups.length,
       itemBuilder: (context, index) {
-        final call = calls[index];
-        return InkWell(
-          onTap: () => _handleCall(context, ref, call),
+        final group = groups[index];
+        // The first entry is the most recent call for this number.
+        final latest = group.first;
+
+        // Find the latest note across the entire group.
+        String? latestNote;
+        for (final c in group) {
+          if (c.notes != null && c.notes!.trim().isNotEmpty) {
+            latestNote = c.notes;
+            break;
+          }
+        }
+
+        return GestureDetector(
+          // Tapping anywhere on the tile body → initiate call
+          onTap: () => _handleCall(context, ref, latest),
           child: CallHistoryTile(
-            call: call,
+            call: latest,
+            count: group.length,
+            latestNote: latestNote,
+            // Info icon tap → open grouped details screen
             onInfo: () {
+              // Stop the GestureDetector from also firing onTap
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => CallHistoryDetailsScreen(call: call),
+                  builder: (context) =>
+                      CallHistoryDetailsScreen(historyGroup: group),
                 ),
               );
             },
@@ -56,7 +92,8 @@ class CallHistoryScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _handleCall(BuildContext context, WidgetRef ref, CallHistoryEntity call) async {
+  Future<void> _handleCall(
+      BuildContext context, WidgetRef ref, CallHistoryEntity call) async {
     final phoneNumber = call.phoneNumber;
     final callHistory = CallHistoryEntity(
       id: const Uuid().v4(),
@@ -71,13 +108,11 @@ class CallHistoryScreen extends ConsumerWidget {
 
     // 2. Launch phone call
     final res = await FlutterPhoneDirectCaller.callNumber(phoneNumber);
-    
+
     if (res == false && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Could not initiate callback')),
       );
     }
   }
-
-  // Old popup dialogs removed in favor of the full detail screen.
 }
